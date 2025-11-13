@@ -1,4 +1,6 @@
+import { useState } from "react";
 import ProductCard from "./ProductCard";
+import { Button } from "@/components/ui/button";
 import productHeadphones from "@/assets/product-headphones.jpg";
 import productBag from "@/assets/product-bag.jpg";
 import productPhone from "@/assets/product-phone.jpg";
@@ -63,11 +65,19 @@ const products = [
 ];
 
 const FeaturedProducts = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  
+  const categories = ["All", "Audio", "Accessories", "Electronics", "Eyewear", "Footwear"];
+  
+  const filteredProducts = selectedCategory === "All" 
+    ? products 
+    : products.filter(product => product.category === selectedCategory);
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <span className="text-sm font-medium text-accent uppercase tracking-wider">
             Featured Collection
           </span>
@@ -79,9 +89,23 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
+        {/* Category Filter */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              onClick={() => setSelectedCategory(category)}
+              className="rounded-full"
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
         </div>
