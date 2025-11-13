@@ -12,6 +12,8 @@ const products = [
     name: "Premium Wireless Headphones",
     price: 299.99,
     category: "Audio",
+    rating: 4.8,
+    reviews: 245,
   },
   {
     id: 2,
@@ -19,6 +21,8 @@ const products = [
     name: "Luxury Leather Bag",
     price: 449.99,
     category: "Accessories",
+    rating: 4.9,
+    reviews: 189,
   },
   {
     id: 3,
@@ -26,6 +30,8 @@ const products = [
     name: "Modern Smartphone",
     price: 899.99,
     category: "Electronics",
+    rating: 4.7,
+    reviews: 512,
   },
   {
     id: 4,
@@ -33,6 +39,8 @@ const products = [
     name: "Designer Sunglasses",
     price: 249.99,
     category: "Eyewear",
+    rating: 4.6,
+    reviews: 156,
   },
   {
     id: 5,
@@ -40,6 +48,8 @@ const products = [
     name: "Athletic Sneakers",
     price: 179.99,
     category: "Footwear",
+    rating: 4.8,
+    reviews: 423,
   },
   {
     id: 6,
@@ -47,6 +57,8 @@ const products = [
     name: "Studio Headphones Pro",
     price: 399.99,
     category: "Audio",
+    rating: 4.9,
+    reviews: 367,
   },
 ];
 

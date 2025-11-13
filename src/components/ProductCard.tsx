@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import { useState } from "react";
 
 interface ProductCardProps {
@@ -8,9 +8,11 @@ interface ProductCardProps {
   name: string;
   price: number;
   category: string;
+  rating?: number;
+  reviews?: number;
 }
 
-const ProductCard = ({ image, name, price, category }: ProductCardProps) => {
+const ProductCard = ({ image, name, price, category, rating = 4.5, reviews = 0 }: ProductCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
 
   return (
@@ -54,7 +56,19 @@ const ProductCard = ({ image, name, price, category }: ProductCardProps) => {
         <h3 className="font-semibold mb-1 text-foreground group-hover:text-accent transition-colors">
           {name}
         </h3>
-        <p className="text-sm text-muted-foreground mb-3">{category}</p>
+        <p className="text-sm text-muted-foreground mb-2">{category}</p>
+        
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-accent text-accent" />
+            <span className="text-sm font-medium">{rating}</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            ({reviews} reviews)
+          </span>
+        </div>
+        
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-foreground">
             ${price.toFixed(2)}
