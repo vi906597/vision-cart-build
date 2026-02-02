@@ -31,8 +31,15 @@ const ProductCard = ({ id, image, name, price, category, rating = 4.5, reviews =
     navigate("/checkout");
   };
 
+  const handleCardClick = () => {
+    navigate(`/product/${id}`);
+  };
+
   return (
-    <Card className="group relative overflow-hidden border-border hover:shadow-lg transition-all duration-300">
+    <Card 
+      className="group relative overflow-hidden border-border hover:shadow-lg transition-all duration-300 cursor-pointer"
+      onClick={handleCardClick}
+    >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <img

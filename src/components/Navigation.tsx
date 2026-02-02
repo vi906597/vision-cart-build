@@ -1,10 +1,11 @@
 import { Search, Menu, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import CartDrawer from "./CartDrawer";
+import logo from "@/assets/logo.png";
 
 const Navigation = () => {
   const [user, setUser] = useState<any>(null);
@@ -38,10 +39,10 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <div className="flex items-center gap-8">
-            <h1 className="text-2xl font-bold tracking-tight">LUXE</h1>
-            
+            <Link to="/">
+              <img src={logo} alt="ZenViero" className="h-8 md:h-10" />
+            </Link>
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6">
               <a href="#" className="text-sm font-medium hover:text-accent transition-colors">
