@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -7,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div>
-            <h3 className="text-2xl font-bold mb-4">LUXE</h3>
+            <img src={logo} alt="ZenViero" className="h-10 mb-4 brightness-0 invert" />
             <p className="text-primary-foreground/80 text-sm">
               Premium products for those who appreciate quality and timeless design.
             </p>
@@ -100,7 +101,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-primary-foreground/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-primary-foreground/60">
-            <p>&copy; 2024 LUXE. All rights reserved.</p>
+            <p>&copy; 2024 ZenViero. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-accent transition-colors">
                 Privacy Policy
