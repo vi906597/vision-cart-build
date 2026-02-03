@@ -166,52 +166,48 @@ const products = [
   },
 ];
 
-const customerReviews = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    avatar: "RS",
-    rating: 5,
-    date: "2 days ago",
-    comment: "Absolutely love this product! The quality is outstanding and it exceeded my expectations. Highly recommend!",
-    verified: true
-  },
-  {
-    id: 2,
-    name: "Priya Patel",
-    avatar: "PP",
-    rating: 4,
-    date: "1 week ago",
-    comment: "Great product for the price. Fast delivery and well packaged. Would buy again.",
-    verified: true
-  },
-  {
-    id: 3,
-    name: "Amit Kumar",
-    avatar: "AK",
-    rating: 5,
-    date: "2 weeks ago",
-    comment: "Premium quality! You can really feel the difference. Worth every penny spent.",
-    verified: true
-  },
-  {
-    id: 4,
-    name: "Sneha Gupta",
-    avatar: "SG",
-    rating: 4,
-    date: "3 weeks ago",
-    comment: "Very satisfied with my purchase. The product looks exactly like the pictures. Good customer service too.",
-    verified: false
-  },
-  {
-    id: 5,
-    name: "Vikram Singh",
-    avatar: "VS",
-    rating: 5,
-    date: "1 month ago",
-    comment: "Best purchase I've made this year! The quality is exceptional and it arrived before the expected date.",
-    verified: true
-  }
+// Unique reviews for each product
+const productReviews: Record<number, typeof customerReviewsTemplate> = {
+  1: [
+    { id: 1, name: "Arjun Mehta", avatar: "AM", rating: 5, date: "1 day ago", comment: "Sound quality is absolutely phenomenal! The noise cancellation is top-notch. Best headphones I've ever owned.", verified: true },
+    { id: 2, name: "Neha Sharma", avatar: "NS", rating: 5, date: "3 days ago", comment: "Battery life is incredible - lasts my entire work week. Very comfortable for long listening sessions.", verified: true },
+    { id: 3, name: "Karan Singh", avatar: "KS", rating: 4, date: "1 week ago", comment: "Great audio quality but took some time to get used to the controls. Overall very satisfied.", verified: true },
+    { id: 4, name: "Pooja Reddy", avatar: "PR", rating: 5, date: "2 weeks ago", comment: "Perfect for my daily commute. The ANC blocks out all the train noise. Worth every rupee!", verified: false },
+  ],
+  2: [
+    { id: 1, name: "Riya Kapoor", avatar: "RK", rating: 5, date: "2 days ago", comment: "The leather quality is exceptional! You can smell the genuine leather. Beautiful craftsmanship.", verified: true },
+    { id: 2, name: "Ananya Joshi", avatar: "AJ", rating: 5, date: "5 days ago", comment: "Got so many compliments on this bag. Spacious and stylish - perfect for work.", verified: true },
+    { id: 3, name: "Meera Patel", avatar: "MP", rating: 4, date: "1 week ago", comment: "Lovely bag but slightly heavier than expected. The compartments are very practical.", verified: true },
+    { id: 4, name: "Shreya Gupta", avatar: "SG", rating: 5, date: "3 weeks ago", comment: "This is my 3rd bag from this brand. Quality never disappoints. Highly recommend!", verified: true },
+  ],
+  3: [
+    { id: 1, name: "Rahul Verma", avatar: "RV", rating: 5, date: "1 day ago", comment: "Camera is insane! The night mode photos look professional. Battery easily lasts full day.", verified: true },
+    { id: 2, name: "Aditya Kumar", avatar: "AK", rating: 4, date: "4 days ago", comment: "Very smooth performance, no lag at all. 5G speeds are incredible. Display is gorgeous.", verified: true },
+    { id: 3, name: "Sanjay Nair", avatar: "SN", rating: 5, date: "1 week ago", comment: "Best smartphone I've used. The fast charging is a lifesaver - 0 to 100 in under an hour.", verified: true },
+    { id: 4, name: "Vivek Sharma", avatar: "VS", rating: 4, date: "2 weeks ago", comment: "Great phone overall. Just wish it had expandable storage. Camera quality is top-tier.", verified: false },
+  ],
+  4: [
+    { id: 1, name: "Priyanka Das", avatar: "PD", rating: 5, date: "3 days ago", comment: "So lightweight I forget I'm wearing them! Polarization is excellent - perfect for driving.", verified: true },
+    { id: 2, name: "Rohit Malhotra", avatar: "RM", rating: 5, date: "1 week ago", comment: "Stylish and functional. The UV protection is real - my eyes don't strain anymore in sunlight.", verified: true },
+    { id: 3, name: "Anjali Iyer", avatar: "AI", rating: 4, date: "2 weeks ago", comment: "Beautiful design but a bit pricey. However, the quality justifies the cost.", verified: true },
+    { id: 4, name: "Deepak Rao", avatar: "DR", rating: 5, date: "1 month ago", comment: "Got these for my beach vacation. Crystal clear vision even in bright sun. Love them!", verified: false },
+  ],
+  5: [
+    { id: 1, name: "Vikram Choudhary", avatar: "VC", rating: 5, date: "2 days ago", comment: "Most comfortable running shoes I've owned. Ran my first marathon in these - no blisters!", verified: true },
+    { id: 2, name: "Suresh Menon", avatar: "SM", rating: 5, date: "5 days ago", comment: "The cushioning is amazing. My knee pain reduced significantly after switching to these.", verified: true },
+    { id: 3, name: "Rajesh Kumar", avatar: "RK", rating: 4, date: "2 weeks ago", comment: "Great for gym and running. Breathable material keeps feet cool. True to size.", verified: true },
+    { id: 4, name: "Amit Dubey", avatar: "AD", rating: 5, date: "3 weeks ago", comment: "Lightweight and durable. Been using daily for 6 months and still looks new.", verified: true },
+  ],
+  6: [
+    { id: 1, name: "Manoj Pillai", avatar: "MP", rating: 5, date: "1 day ago", comment: "As a music producer, these are perfect for mixing. Flat response is exactly what I needed.", verified: true },
+    { id: 2, name: "Kavitha Rajan", avatar: "KR", rating: 5, date: "4 days ago", comment: "Incredible detail in the sound. Can hear instruments I never noticed before in my favorite songs.", verified: true },
+    { id: 3, name: "Nikhil George", avatar: "NG", rating: 5, date: "1 week ago", comment: "Worth the investment for any serious audiophile. The build quality is tank-like.", verified: true },
+    { id: 4, name: "Ashwin Nair", avatar: "AN", rating: 4, date: "2 weeks ago", comment: "Outstanding clarity but needs a good amp to drive properly. Once set up, sounds heavenly.", verified: false },
+  ],
+};
+
+const customerReviewsTemplate = [
+  { id: 1, name: "Customer", avatar: "C", rating: 5, date: "1 week ago", comment: "Great product!", verified: true },
 ];
 
 const ProductDetail = () => {
@@ -425,7 +421,7 @@ const ProductDetail = () => {
             </div>
 
             <div className="space-y-6">
-              {customerReviews.map((review) => (
+              {(productReviews[product.id] || productReviews[1]).map((review) => (
                 <Card key={review.id} className="p-6">
                   <div className="flex items-start gap-4">
                     <div className="h-12 w-12 rounded-full bg-accent/20 flex items-center justify-center font-bold text-accent">
