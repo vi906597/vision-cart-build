@@ -25,10 +25,10 @@ const Checkout = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     address: "",
     city: "",
+    state: "",
     pincode: "",
   });
 
@@ -37,7 +37,7 @@ const Checkout = () => {
   };
 
   const validateForm = () => {
-    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.pincode) {
+    if (!formData.name || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.pincode) {
       toast({
         title: "Missing Information",
         description: "Please fill in all the required fields",
@@ -120,7 +120,6 @@ const Checkout = () => {
         },
         prefill: {
           name: formData.name,
-          email: formData.email,
           contact: formData.phone,
         },
         theme: {
@@ -223,17 +222,6 @@ const Checkout = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <div>
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
                     id="phone"
@@ -245,15 +233,16 @@ const Checkout = () => {
                 </div>
                 <div>
                   <Label htmlFor="address">Address</Label>
-                  <Input
+                  <textarea
                     id="address"
                     name="address"
                     value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Street address"
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    placeholder="House/Flat No., Street, Area, Landmark"
+                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="city">City</Label>
                     <Input
@@ -262,6 +251,16 @@ const Checkout = () => {
                       value={formData.city}
                       onChange={handleInputChange}
                       placeholder="Mumbai"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      placeholder="Maharashtra"
                     />
                   </div>
                   <div>

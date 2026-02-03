@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -73,7 +74,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">LUXE</h1>
+            <img src={logo} alt="ZenViero" className="h-10 mx-auto mb-4" />
             <p className="text-muted-foreground">
               {isLogin ? "Welcome back" : "Create your account"}
             </p>
