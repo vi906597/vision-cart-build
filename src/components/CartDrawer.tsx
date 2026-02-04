@@ -51,7 +51,7 @@ const CartDrawer = () => {
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{item.name}</h4>
                       <p className="text-muted-foreground text-xs">{item.category}</p>
-                      <p className="font-bold mt-1">${item.price.toFixed(2)}</p>
+                      <p className="font-bold mt-1">₹{item.price.toLocaleString('en-IN')}</p>
                       
                       <div className="flex items-center gap-2 mt-2">
                         <Button
@@ -91,7 +91,7 @@ const CartDrawer = () => {
             <div className="border-t pt-4 pb-6 space-y-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span>${getTotal().toFixed(2)}</span>
+                <span>₹{getTotal().toLocaleString('en-IN')}</span>
               </div>
               <Button className="w-full" size="lg" onClick={handleCheckout}>
                 Proceed to Checkout

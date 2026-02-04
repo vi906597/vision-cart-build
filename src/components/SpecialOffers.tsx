@@ -12,8 +12,8 @@ const offers = [
     id: 3,
     image: productPhone,
     name: "Modern Smartphone",
-    originalPrice: 899.99,
-    discountPrice: 649.99,
+    originalPrice: 74999,
+    discountPrice: 53999,
     discount: 28,
     badge: "Flash Sale",
     category: "Electronics",
@@ -22,8 +22,8 @@ const offers = [
     id: 5,
     image: productSneakers,
     name: "Athletic Sneakers",
-    originalPrice: 179.99,
-    discountPrice: 129.99,
+    originalPrice: 14999,
+    discountPrice: 10799,
     discount: 28,
     badge: "Limited Offer",
     category: "Footwear",
@@ -32,8 +32,8 @@ const offers = [
     id: 2,
     image: productBag,
     name: "Luxury Leather Bag",
-    originalPrice: 449.99,
-    discountPrice: 299.99,
+    originalPrice: 37499,
+    discountPrice: 24999,
     discount: 33,
     badge: "Deal of the Day",
     category: "Accessories",
@@ -196,17 +196,17 @@ const SpecialOffers = () => {
                 {/* Pricing */}
                 <div className="flex items-baseline gap-3 mb-4">
                   <span className="text-2xl font-bold text-accent">
-                    ${offer.discountPrice}
+                    ₹{offer.discountPrice.toLocaleString('en-IN')}
                   </span>
                   <span className="text-lg text-muted-foreground line-through">
-                    ${offer.originalPrice}
+                    ₹{offer.originalPrice.toLocaleString('en-IN')}
                   </span>
                 </div>
 
                 {/* Savings */}
                 <div className="mb-4 p-3 bg-accent/10 rounded-lg">
                   <p className="text-sm text-accent font-medium">
-                    🎉 You save ${(offer.originalPrice - offer.discountPrice).toFixed(2)}!
+                    🎉 You save ₹{(offer.originalPrice - offer.discountPrice).toLocaleString('en-IN')}!
                   </p>
                 </div>
 

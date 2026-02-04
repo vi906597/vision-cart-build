@@ -168,7 +168,7 @@ const Checkout = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center">
-          <CheckCircle className="h-16 w-16 text-accent mx-auto mb-4" />
+          <CheckCircle className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Order Confirmed!</h1>
           <p className="text-muted-foreground mb-6">
             Thank you for your order. {paymentMethod === "cod" ? "Please pay on delivery." : "Payment received successfully."}
@@ -319,7 +319,7 @@ const Checkout = () => {
                     <div className="flex-1">
                       <p className="font-medium text-sm">{item.name}</p>
                       <p className="text-muted-foreground text-xs">Qty: {item.quantity}</p>
-                      <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                     </div>
                   </div>
                 ))}
@@ -328,7 +328,7 @@ const Checkout = () => {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${getTotal().toFixed(2)}</span>
+                  <span>₹{getTotal().toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
@@ -336,7 +336,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t">
                   <span>Total</span>
-                  <span>${getTotal().toFixed(2)}</span>
+                  <span>₹{getTotal().toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
