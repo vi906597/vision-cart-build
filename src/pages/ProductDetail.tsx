@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heart, ShoppingCart, Star, Zap, ArrowLeft, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import ProductImageGallery from "@/components/ProductImageGallery";
 import productHeadphones from "@/assets/product-headphones.jpg";
 import productBag from "@/assets/product-bag.jpg";
 import productPhone from "@/assets/product-phone.jpg";
@@ -16,9 +16,9 @@ import productSneakers from "@/assets/product-sneakers.jpg";
 const products = [
   {
     id: 1,
-    image: productHeadphones,
+    images: [productHeadphones, productBag, productPhone, productSunglasses],
     name: "Premium Wireless Headphones",
-    price: 299.99,
+    price: 24999,
     category: "Audio",
     rating: 4.8,
     reviews: 245,
@@ -41,9 +41,9 @@ const products = [
   },
   {
     id: 2,
-    image: productBag,
+    images: [productBag, productSunglasses, productHeadphones],
     name: "Luxury Leather Bag",
-    price: 449.99,
+    price: 37499,
     category: "Accessories",
     rating: 4.9,
     reviews: 189,
@@ -66,9 +66,9 @@ const products = [
   },
   {
     id: 3,
-    image: productPhone,
+    images: [productPhone, productHeadphones, productSneakers, productBag],
     name: "Modern Smartphone",
-    price: 899.99,
+    price: 74999,
     category: "Electronics",
     rating: 4.7,
     reviews: 512,
@@ -91,9 +91,9 @@ const products = [
   },
   {
     id: 4,
-    image: productSunglasses,
+    images: [productSunglasses, productBag, productHeadphones],
     name: "Designer Sunglasses",
-    price: 249.99,
+    price: 20799,
     category: "Eyewear",
     rating: 4.6,
     reviews: 156,
@@ -116,9 +116,9 @@ const products = [
   },
   {
     id: 5,
-    image: productSneakers,
+    images: [productSneakers, productPhone, productBag, productHeadphones],
     name: "Athletic Sneakers",
-    price: 179.99,
+    price: 14999,
     category: "Footwear",
     rating: 4.8,
     reviews: 423,
@@ -141,9 +141,9 @@ const products = [
   },
   {
     id: 6,
-    image: productHeadphones,
+    images: [productHeadphones, productPhone, productSneakers],
     name: "Studio Headphones Pro",
-    price: 399.99,
+    price: 33249,
     category: "Audio",
     rating: 4.9,
     reviews: 367,
@@ -167,7 +167,7 @@ const products = [
 ];
 
 // Unique reviews for each product
-const productReviews: Record<number, typeof customerReviewsTemplate> = {
+const productReviews: Record<number, Array<{ id: number; name: string; avatar: string; rating: number; date: string; comment: string; verified: boolean }>> = {
   1: [
     { id: 1, name: "Arjun Mehta", avatar: "AM", rating: 5, date: "1 day ago", comment: "Sound quality is absolutely phenomenal! The noise cancellation is top-notch. Best headphones I've ever owned.", verified: true },
     { id: 2, name: "Neha Sharma", avatar: "NS", rating: 5, date: "3 days ago", comment: "Battery life is incredible - lasts my entire work week. Very comfortable for long listening sessions.", verified: true },
@@ -206,15 +206,10 @@ const productReviews: Record<number, typeof customerReviewsTemplate> = {
   ],
 };
 
-const customerReviewsTemplate = [
-  { id: 1, name: "Customer", avatar: "C", rating: 5, date: "1 week ago", comment: "Great product!", verified: true },
-];
-
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
 
@@ -234,13 +229,13 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart({ id: product.id, image: product.image, name: product.name, price: product.price, category: product.category });
+      addToCart({ id: product.id, image: product.images[0], name: product.name, price: product.price, category: product.category });
     }
   };
 
   const handleBuyNow = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart({ id: product.id, image: product.image, name: product.name, price: product.price, category: product.category });
+      addToCart({ id: product.id, image: product.images[0], name: product.name, price: product.price, category: product.category });
     }
     navigate("/checkout");
   };
@@ -268,19 +263,13 @@ const ProductDetail = () => {
 
           {/* Product Details */}
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
-            {/* Product Image */}
+            {/* Product Image Gallery */}
             <div className="relative">
-              <Card className="overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full aspect-square object-cover"
-                />
-              </Card>
+              <ProductImageGallery images={product.images} productName={product.name} />
               <Button
                 size="icon"
                 variant="secondary"
-                className="absolute top-4 right-4 rounded-full shadow-md"
+                className="absolute top-4 right-4 rounded-full shadow-md z-10"
                 onClick={() => setIsLiked(!isLiked)}
               >
                 <Heart className={`h-5 w-5 ${isLiked ? 'fill-accent text-accent' : ''}`} />
@@ -307,7 +296,7 @@ const ProductDetail = () => {
 
               {/* Price */}
               <div className="text-3xl font-bold text-accent">
-                ${product.price.toFixed(2)}
+                ₹{product.price.toLocaleString('en-IN')}
               </div>
 
               {/* Description */}
@@ -363,7 +352,7 @@ const ProductDetail = () => {
                 <div className="flex flex-col items-center text-center">
                   <Truck className="h-6 w-6 text-accent mb-2" />
                   <span className="text-sm font-medium">Free Delivery</span>
-                  <span className="text-xs text-muted-foreground">Orders above $50</span>
+                  <span className="text-xs text-muted-foreground">Orders above ₹500</span>
                 </div>
                 <div className="flex flex-col items-center text-center">
                   <Shield className="h-6 w-6 text-accent mb-2" />

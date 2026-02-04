@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +8,15 @@ import {
   Package, 
   ShoppingCart, 
   Tag, 
-  Users, 
   Settings, 
   Plus, 
   Edit, 
   Trash2,
   TrendingUp,
   DollarSign,
-  Eye
+  Eye,
+  LogOut,
+  Lock
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import productHeadphones from "@/assets/product-headphones.jpg";
@@ -23,35 +24,180 @@ import productBag from "@/assets/product-bag.jpg";
 import productPhone from "@/assets/product-phone.jpg";
 import productSunglasses from "@/assets/product-sunglasses.jpg";
 import productSneakers from "@/assets/product-sneakers.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import type { User, Session } from "@supabase/supabase-js";
 
 // Sample data for demonstration
 const initialProducts = [
-  { id: 1, name: "Premium Wireless Headphones", price: 299.99, stock: 45, category: "Audio", image: productHeadphones },
-  { id: 2, name: "Luxury Leather Bag", price: 449.99, stock: 23, category: "Accessories", image: productBag },
-  { id: 3, name: "Modern Smartphone", price: 899.99, stock: 67, category: "Electronics", image: productPhone },
-  { id: 4, name: "Designer Sunglasses", price: 249.99, stock: 89, category: "Eyewear", image: productSunglasses },
-  { id: 5, name: "Athletic Sneakers", price: 179.99, stock: 112, category: "Footwear", image: productSneakers },
+  { id: 1, name: "Premium Wireless Headphones", price: 24999, stock: 45, category: "Audio", image: productHeadphones },
+  { id: 2, name: "Luxury Leather Bag", price: 37499, stock: 23, category: "Accessories", image: productBag },
+  { id: 3, name: "Modern Smartphone", price: 74999, stock: 67, category: "Electronics", image: productPhone },
+  { id: 4, name: "Designer Sunglasses", price: 20799, stock: 89, category: "Eyewear", image: productSunglasses },
+  { id: 5, name: "Athletic Sneakers", price: 14999, stock: 112, category: "Footwear", image: productSneakers },
 ];
 
 const initialOrders = [
-  { id: "ORD001", customer: "Rahul Sharma", total: 599.98, status: "Delivered", date: "2025-02-01", items: 2 },
-  { id: "ORD002", customer: "Priya Patel", total: 449.99, status: "Shipped", date: "2025-02-02", items: 1 },
-  { id: "ORD003", customer: "Amit Kumar", total: 1149.98, status: "Processing", date: "2025-02-03", items: 3 },
-  { id: "ORD004", customer: "Sneha Gupta", total: 179.99, status: "Pending", date: "2025-02-03", items: 1 },
-  { id: "ORD005", customer: "Vikram Singh", total: 749.98, status: "Delivered", date: "2025-01-30", items: 2 },
+  { id: "ORD001", customer: "Rahul Sharma", total: 49998, status: "Delivered", date: "2025-02-01", items: 2 },
+  { id: "ORD002", customer: "Priya Patel", total: 37499, status: "Shipped", date: "2025-02-02", items: 1 },
+  { id: "ORD003", customer: "Amit Kumar", total: 95498, status: "Processing", date: "2025-02-03", items: 3 },
+  { id: "ORD004", customer: "Sneha Gupta", total: 14999, status: "Pending", date: "2025-02-03", items: 1 },
+  { id: "ORD005", customer: "Vikram Singh", total: 62498, status: "Delivered", date: "2025-01-30", items: 2 },
 ];
 
 const initialDeals = [
-  { id: 1, product: "Modern Smartphone", discount: 28, originalPrice: 899.99, salePrice: 649.99, active: true },
-  { id: 2, product: "Athletic Sneakers", discount: 28, originalPrice: 179.99, salePrice: 129.99, active: true },
-  { id: 3, product: "Luxury Leather Bag", discount: 33, originalPrice: 449.99, salePrice: 299.99, active: true },
+  { id: 1, product: "Modern Smartphone", discount: 28, originalPrice: 74999, salePrice: 53999, active: true },
+  { id: 2, product: "Athletic Sneakers", discount: 28, originalPrice: 14999, salePrice: 10799, active: true },
+  { id: 3, product: "Luxury Leather Bag", discount: 33, originalPrice: 37499, salePrice: 24999, active: true },
 ];
 
 const AdminPanel = () => {
   const [products, setProducts] = useState(initialProducts);
   const [orders] = useState(initialOrders);
   const [deals, setDeals] = useState(initialDeals);
-  const [editingProduct, setEditingProduct] = useState<typeof initialProducts[0] | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Check admin role after auth state change
+        if (session?.user) {
+          setTimeout(() => {
+            checkAdminRole(session.user.id);
+          }, 0);
+        } else {
+          setIsAdmin(false);
+          setLoading(false);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: userId,
+        _role: 'admin'
+      });
+      
+      if (error) {
+        console.error("Error checking admin role:", error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(data === true);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setIsAdmin(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else if (data.user) {
+        toast({
+          title: "Login Successful",
+          description: "Checking admin access...",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    setAuthLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/secure-admin-92`,
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Sign Up Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Sign Up Successful",
+          description: "Please check your email to verify your account. After verification, an admin needs to grant you admin access.",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setIsAdmin(false);
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully.",
+    });
+  };
 
   const stats = {
     totalProducts: products.length,
@@ -78,6 +224,107 @@ const AdminPanel = () => {
     setDeals(deals.map(d => d.id === id ? { ...d, active: !d.active } : d));
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login form if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-secondary/30 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8">
+          <div className="text-center mb-8">
+            <img src={logo} alt="ZenViero" className="h-10 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold">Admin Login</h1>
+            <p className="text-muted-foreground">Sign in to access the admin panel</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={authLoading}>
+              <Lock className="h-4 w-4 mr-2" />
+              {authLoading ? "Signing in..." : "Sign In"}
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleSignUp}
+              disabled={authLoading}
+            >
+              {authLoading ? "Processing..." : "Sign Up"}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <Button variant="ghost" onClick={() => navigate("/")}>
+              ← Back to Store
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-secondary/30 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 text-center">
+          <div className="h-16 w-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-6">
+            You don't have admin privileges. Please contact the system administrator.
+          </p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Logged in as: {user.email}
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+            <Button className="flex-1" onClick={() => navigate("/")}>
+              Go to Store
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Admin panel content
   return (
     <div className="min-h-screen bg-secondary/30">
       {/* Header */}
@@ -87,10 +334,17 @@ const AdminPanel = () => {
             <img src={logo} alt="ZenViero" className="h-8" />
             <span className="text-lg font-semibold text-muted-foreground">Admin Panel</span>
           </div>
-          <Button variant="outline" onClick={() => window.location.href = "/"}>
-            <Eye className="h-4 w-4 mr-2" />
-            View Store
-          </Button>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">{user.email}</span>
+            <Button variant="outline" onClick={() => window.location.href = "/"}>
+              <Eye className="h-4 w-4 mr-2" />
+              View Store
+            </Button>
+            <Button variant="ghost" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -119,7 +373,7 @@ const AdminPanel = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-3xl font-bold">${stats.revenue.toFixed(2)}</p>
+                <p className="text-3xl font-bold">₹{stats.revenue.toLocaleString('en-IN')}</p>
               </div>
               <DollarSign className="h-10 w-10 text-accent" />
             </div>
@@ -187,7 +441,7 @@ const AdminPanel = () => {
                           </div>
                         </td>
                         <td className="py-3 px-4">{product.category}</td>
-                        <td className="py-3 px-4">${product.price.toFixed(2)}</td>
+                        <td className="py-3 px-4">₹{product.price.toLocaleString('en-IN')}</td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded text-sm ${product.stock < 30 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
                             {product.stock} units
@@ -195,7 +449,7 @@ const AdminPanel = () => {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => setEditingProduct(product)}>
+                            <Button variant="ghost" size="icon">
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteProduct(product.id)}>
@@ -239,7 +493,7 @@ const AdminPanel = () => {
                         <td className="py-3 px-4 font-mono">{order.id}</td>
                         <td className="py-3 px-4">{order.customer}</td>
                         <td className="py-3 px-4">{order.items}</td>
-                        <td className="py-3 px-4 font-semibold">${order.total.toFixed(2)}</td>
+                        <td className="py-3 px-4 font-semibold">₹{order.total.toLocaleString('en-IN')}</td>
                         <td className="py-3 px-4">{order.date}</td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}>
@@ -283,8 +537,8 @@ const AdminPanel = () => {
                     {deals.map((deal) => (
                       <tr key={deal.id} className="border-b hover:bg-secondary/50">
                         <td className="py-3 px-4 font-medium">{deal.product}</td>
-                        <td className="py-3 px-4 text-muted-foreground line-through">${deal.originalPrice.toFixed(2)}</td>
-                        <td className="py-3 px-4 font-semibold text-accent">${deal.salePrice.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-muted-foreground line-through">₹{deal.originalPrice.toLocaleString('en-IN')}</td>
+                        <td className="py-3 px-4 font-semibold text-accent">₹{deal.salePrice.toLocaleString('en-IN')}</td>
                         <td className="py-3 px-4">
                           <span className="bg-accent/20 text-accent px-2 py-1 rounded font-semibold">
                             {deal.discount}% OFF
@@ -332,7 +586,7 @@ const AdminPanel = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Input id="currency" defaultValue="USD ($)" />
+                  <Input id="currency" defaultValue="INR (₹)" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dealTimer">Deal Timer (minutes)</Label>

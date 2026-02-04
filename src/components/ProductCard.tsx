@@ -98,7 +98,7 @@ const ProductCard = ({ id, image, name, price, category, rating = 4.5, reviews =
         
         <div className="flex items-center justify-between mb-3">
           <span className="text-lg font-bold text-foreground">
-            ${price.toFixed(2)}
+            ₹{price.toLocaleString('en-IN')}
           </span>
         </div>
 
