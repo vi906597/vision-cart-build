@@ -89,35 +89,9 @@ const Checkout = () => {
         key: data.key_id,
         amount: data.order.amount,
         currency: data.order.currency,
-        name: "LUXE Store",
-        description: "Purchase from LUXE",
+        name: "ZenViero Store",
+        description: "Purchase from ZenViero",
         order_id: data.order.id,
-        handler: async function (response: any) {
-          // Verify payment
-          const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
-            body: {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            },
-          });
-
-          if (verifyError || !verifyData.verified) {
-            toast({
-              title: "Payment Failed",
-              description: "Payment verification failed. Please contact support.",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          setOrderPlaced(true);
-          clearCart();
-          toast({
-            title: "Payment Successful!",
-            description: "Your order has been placed successfully.",
-          });
-        },
         handler: async function (response: any) {
           // Verify payment
           const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
