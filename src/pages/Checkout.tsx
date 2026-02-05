@@ -163,19 +163,51 @@ const Checkout = () => {
     }
   };
 
-  const handleCODOrder = () => {
+  const handleCODOrder = async () => {
     if (!validateForm()) return;
     
     setLoading(true);
-    setTimeout(() => {
+    
+    try {
+      const orderNumber = `ORD${Date.now().toString().slice(-8)}`;
+      
+      const { error } = await supabase.from('orders').insert({
+        order_number: orderNumber,
+        customer_name: formData.name,
+        customer_phone: formData.phone,
+        customer_address: formData.address,
+        customer_city: formData.city,
+        customer_state: formData.state,
+        customer_pincode: formData.pincode,
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        total: getTotal(),
+        status: 'Pending',
+        payment_method: 'cod',
+      });
+
+      if (error) throw error;
+
       setOrderPlaced(true);
       clearCart();
       toast({
         title: "Order Placed!",
         description: "Your order has been placed successfully. Pay on delivery.",
       });
+    } catch (error) {
+      console.error("Error saving order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to place order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handlePlaceOrder = () => {
