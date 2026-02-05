@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      orders: {
+        Row: {
+          created_at: string
+          customer_address: string
+          customer_city: string
+          customer_name: string
+          customer_phone: string
+          customer_pincode: string
+          customer_state: string
+          id: string
+          items: Json
+          order_number: string
+          payment_id: string | null
+          payment_method: string
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_address: string
+          customer_city: string
+          customer_name: string
+          customer_phone: string
+          customer_pincode: string
+          customer_state: string
+          id?: string
+          items: Json
+          order_number: string
+          payment_id?: string | null
+          payment_method: string
+          status?: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_address?: string
+          customer_city?: string
+          customer_name?: string
+          customer_phone?: string
+          customer_pincode?: string
+          customer_state?: string
+          id?: string
+          items?: Json
+          order_number?: string
+          payment_id?: string | null
+          payment_method?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          deal_discount: number | null
+          deal_price: number | null
+          description: string | null
+          features: string[] | null
+          id: string
+          images: string[] | null
+          is_deal: boolean | null
+          name: string
+          price: number
+          rating: number | null
+          reviews_count: number | null
+          specifications: Json | null
+          stock: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          deal_discount?: number | null
+          deal_price?: number | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          is_deal?: boolean | null
+          name: string
+          price: number
+          rating?: number | null
+          reviews_count?: number | null
+          specifications?: Json | null
+          stock?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deal_discount?: number | null
+          deal_price?: number | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          is_deal?: boolean | null
+          name?: string
+          price?: number
+          rating?: number | null
+          reviews_count?: number | null
+          specifications?: Json | null
+          stock?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
