@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -212,6 +212,7 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
+  const reviewsRef = useRef<HTMLDivElement>(null);
 
   const product = products.find(p => p.id === Number(id));
 
@@ -291,7 +292,12 @@ const ProductDetail = () => {
                   {renderStars(product.rating)}
                 </div>
                 <span className="text-lg font-medium">{product.rating}</span>
-                <span className="text-muted-foreground">({product.reviews} reviews)</span>
+                <button 
+                  onClick={() => reviewsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-muted-foreground hover:text-accent transition-colors cursor-pointer"
+                >
+                  ({product.reviews} reviews)
+                </button>
               </div>
 
               {/* Price */}
@@ -398,7 +404,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Customer Reviews */}
-          <section>
+          <section ref={reviewsRef}>
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold">Customer Reviews</h2>
               <div className="flex items-center gap-2">
