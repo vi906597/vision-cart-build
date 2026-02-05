@@ -118,6 +118,54 @@ const Checkout = () => {
             description: "Your order has been placed successfully.",
           });
         },
+        handler: async function (response: any) {
+          // Verify payment
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
+            body: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            },
+          });
+
+          if (verifyError || !verifyData.verified) {
+            toast({
+              title: "Payment Failed",
+              description: "Payment verification failed. Please contact support.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Save order to database
+          const orderNumber = `ORD${Date.now().toString().slice(-8)}`;
+          await supabase.from('orders').insert({
+            order_number: orderNumber,
+            customer_name: formData.name,
+            customer_phone: formData.phone,
+            customer_address: formData.address,
+            customer_city: formData.city,
+            customer_state: formData.state,
+            customer_pincode: formData.pincode,
+            items: items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+            })),
+            total: getTotal(),
+            status: 'Processing',
+            payment_method: 'razorpay',
+            payment_id: response.razorpay_payment_id,
+          });
+
+          setOrderPlaced(true);
+          clearCart();
+          toast({
+            title: "Payment Successful!",
+            description: "Your order has been placed successfully.",
+          });
+        },
         prefill: {
           name: formData.name,
           contact: formData.phone,
