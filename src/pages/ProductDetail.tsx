@@ -7,204 +7,130 @@ import { useCart } from "@/contexts/CartContext";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ProductImageGallery from "@/components/ProductImageGallery";
+import { supabase } from "@/integrations/supabase/client";
 import productHeadphones from "@/assets/product-headphones.jpg";
 import productBag from "@/assets/product-bag.jpg";
 import productPhone from "@/assets/product-phone.jpg";
 import productSunglasses from "@/assets/product-sunglasses.jpg";
 import productSneakers from "@/assets/product-sneakers.jpg";
 
-const products = [
+// Static products for fallback (when ID starts with 'static-')
+const staticProducts = [
   {
-    id: 1,
+    id: "static-1",
     images: [productHeadphones, productBag, productPhone, productSunglasses],
     name: "Premium Wireless Headphones",
     price: 24999,
     category: "Audio",
     rating: 4.8,
     reviews: 245,
-    description: "Experience studio-quality sound with our Premium Wireless Headphones. Featuring active noise cancellation, 40-hour battery life, and ultra-comfortable memory foam ear cushions. Perfect for audiophiles and music lovers who demand the best.",
-    features: [
-      "Active Noise Cancellation (ANC)",
-      "40-hour battery life",
-      "Premium memory foam ear cushions",
-      "Bluetooth 5.2 connectivity",
-      "Hi-Res Audio certified",
-      "Foldable design with premium case"
-    ],
-    specifications: {
-      "Driver Size": "40mm",
-      "Frequency Response": "20Hz - 40kHz",
-      "Impedance": "32 Ohms",
-      "Weight": "250g",
-      "Connectivity": "Bluetooth 5.2, 3.5mm jack"
-    }
+    description: "Experience studio-quality sound with our Premium Wireless Headphones. Featuring active noise cancellation, 40-hour battery life, and ultra-comfortable memory foam ear cushions.",
+    features: ["Active Noise Cancellation (ANC)", "40-hour battery life", "Premium memory foam ear cushions", "Bluetooth 5.2 connectivity", "Hi-Res Audio certified"],
+    specifications: { "Driver Size": "40mm", "Frequency Response": "20Hz - 40kHz", "Impedance": "32 Ohms", "Weight": "250g" }
   },
   {
-    id: 2,
+    id: "static-2",
     images: [productBag, productSunglasses, productHeadphones],
     name: "Luxury Leather Bag",
     price: 37499,
     category: "Accessories",
     rating: 4.9,
     reviews: 189,
-    description: "Crafted from the finest Italian leather, this luxury bag combines timeless elegance with modern functionality. Features multiple compartments, premium hardware, and a spacious interior perfect for daily essentials.",
-    features: [
-      "Genuine Italian leather",
-      "Premium gold-tone hardware",
-      "Multiple interior compartments",
-      "Adjustable shoulder strap",
-      "Dust bag included",
-      "Handcrafted finish"
-    ],
-    specifications: {
-      "Material": "Italian Leather",
-      "Dimensions": "35cm x 28cm x 12cm",
-      "Strap Length": "Adjustable 80-120cm",
-      "Weight": "650g",
-      "Color": "Classic Brown"
-    }
+    description: "Crafted from the finest Italian leather, this luxury bag combines timeless elegance with modern functionality.",
+    features: ["Genuine Italian leather", "Premium gold-tone hardware", "Multiple interior compartments", "Adjustable shoulder strap"],
+    specifications: { "Material": "Italian Leather", "Dimensions": "35cm x 28cm x 12cm", "Weight": "650g" }
   },
   {
-    id: 3,
+    id: "static-3",
     images: [productPhone, productHeadphones, productSneakers, productBag],
     name: "Modern Smartphone",
     price: 74999,
     category: "Electronics",
     rating: 4.7,
     reviews: 512,
-    description: "The latest flagship smartphone with cutting-edge technology. Features a stunning 6.7-inch AMOLED display, powerful processor, and an advanced camera system for professional-quality photos and videos.",
-    features: [
-      "6.7-inch Super AMOLED display",
-      "108MP main camera with AI",
-      "5000mAh battery with fast charging",
-      "256GB internal storage",
-      "5G connectivity",
-      "Water resistant IP68"
-    ],
-    specifications: {
-      "Display": "6.7-inch AMOLED, 120Hz",
-      "Processor": "Latest flagship chipset",
-      "RAM": "12GB",
-      "Storage": "256GB",
-      "Battery": "5000mAh"
-    }
+    description: "The latest flagship smartphone with cutting-edge technology. Features a stunning 6.7-inch AMOLED display and advanced camera system.",
+    features: ["6.7-inch Super AMOLED display", "108MP main camera with AI", "5000mAh battery with fast charging", "5G connectivity"],
+    specifications: { "Display": "6.7-inch AMOLED, 120Hz", "Processor": "Latest flagship chipset", "RAM": "12GB", "Storage": "256GB" }
   },
   {
-    id: 4,
+    id: "static-4",
     images: [productSunglasses, productBag, productHeadphones],
     name: "Designer Sunglasses",
     price: 20799,
     category: "Eyewear",
     rating: 4.6,
     reviews: 156,
-    description: "Elevate your style with our Designer Sunglasses. Featuring polarized lenses for superior UV protection and a lightweight titanium frame for all-day comfort. The perfect blend of fashion and function.",
-    features: [
-      "Polarized UV400 lenses",
-      "Lightweight titanium frame",
-      "Anti-reflective coating",
-      "Scratch-resistant lenses",
-      "Premium carrying case",
-      "Microfiber cleaning cloth"
-    ],
-    specifications: {
-      "Frame Material": "Titanium",
-      "Lens Material": "CR-39 Polarized",
-      "UV Protection": "UV400",
-      "Frame Width": "142mm",
-      "Weight": "28g"
-    }
+    description: "Elevate your style with our Designer Sunglasses. Featuring polarized lenses for superior UV protection.",
+    features: ["Polarized UV400 lenses", "Lightweight titanium frame", "Anti-reflective coating", "Premium carrying case"],
+    specifications: { "Frame Material": "Titanium", "Lens Material": "CR-39 Polarized", "UV Protection": "UV400" }
   },
   {
-    id: 5,
+    id: "static-5",
     images: [productSneakers, productPhone, productBag, productHeadphones],
     name: "Athletic Sneakers",
     price: 14999,
     category: "Footwear",
     rating: 4.8,
     reviews: 423,
-    description: "Designed for performance and style, these Athletic Sneakers feature responsive cushioning, breathable mesh upper, and durable outsole. Perfect for running, training, or everyday wear.",
-    features: [
-      "Responsive foam cushioning",
-      "Breathable mesh upper",
-      "Durable rubber outsole",
-      "Lightweight design",
-      "Reflective details",
-      "Removable insole"
-    ],
-    specifications: {
-      "Upper Material": "Engineered mesh",
-      "Sole": "Rubber",
-      "Cushioning": "Responsive foam",
-      "Drop": "10mm",
-      "Weight": "280g (Size 9)"
-    }
+    description: "Designed for performance and style, these Athletic Sneakers feature responsive cushioning and breathable mesh upper.",
+    features: ["Responsive foam cushioning", "Breathable mesh upper", "Durable rubber outsole", "Lightweight design"],
+    specifications: { "Upper Material": "Engineered mesh", "Sole": "Rubber", "Cushioning": "Responsive foam" },
+    sizes: ["6", "7", "8", "9", "10", "11"]
   },
   {
-    id: 6,
+    id: "static-6",
     images: [productHeadphones, productPhone, productSneakers],
     name: "Studio Headphones Pro",
     price: 33249,
     category: "Audio",
     rating: 4.9,
     reviews: 367,
-    description: "Professional-grade studio headphones for music production and critical listening. Featuring flat frequency response, exceptional detail, and supreme comfort for extended studio sessions.",
-    features: [
-      "Flat frequency response",
-      "Premium 50mm drivers",
-      "Detachable cables",
-      "Rotating ear cups",
-      "Professional carrying case",
-      "Studio-grade sound isolation"
-    ],
-    specifications: {
-      "Driver Size": "50mm",
-      "Frequency Response": "5Hz - 50kHz",
-      "Impedance": "64 Ohms",
-      "Weight": "320g",
-      "Cable Length": "3m coiled, 1.2m straight"
-    }
+    description: "Professional-grade studio headphones for music production and critical listening.",
+    features: ["Flat frequency response", "Premium 50mm drivers", "Detachable cables", "Studio-grade sound isolation"],
+    specifications: { "Driver Size": "50mm", "Frequency Response": "5Hz - 50kHz", "Impedance": "64 Ohms" }
   },
 ];
 
-// Unique reviews for each product
-const productReviews: Record<number, Array<{ id: number; name: string; avatar: string; rating: number; date: string; comment: string; verified: boolean }>> = {
-  1: [
-    { id: 1, name: "Arjun Mehta", avatar: "AM", rating: 5, date: "1 day ago", comment: "Sound quality is absolutely phenomenal! The noise cancellation is top-notch. Best headphones I've ever owned.", verified: true },
-    { id: 2, name: "Neha Sharma", avatar: "NS", rating: 5, date: "3 days ago", comment: "Battery life is incredible - lasts my entire work week. Very comfortable for long listening sessions.", verified: true },
-    { id: 3, name: "Karan Singh", avatar: "KS", rating: 4, date: "1 week ago", comment: "Great audio quality but took some time to get used to the controls. Overall very satisfied.", verified: true },
-    { id: 4, name: "Pooja Reddy", avatar: "PR", rating: 5, date: "2 weeks ago", comment: "Perfect for my daily commute. The ANC blocks out all the train noise. Worth every rupee!", verified: false },
-  ],
-  2: [
-    { id: 1, name: "Riya Kapoor", avatar: "RK", rating: 5, date: "2 days ago", comment: "The leather quality is exceptional! You can smell the genuine leather. Beautiful craftsmanship.", verified: true },
-    { id: 2, name: "Ananya Joshi", avatar: "AJ", rating: 5, date: "5 days ago", comment: "Got so many compliments on this bag. Spacious and stylish - perfect for work.", verified: true },
-    { id: 3, name: "Meera Patel", avatar: "MP", rating: 4, date: "1 week ago", comment: "Lovely bag but slightly heavier than expected. The compartments are very practical.", verified: true },
-    { id: 4, name: "Shreya Gupta", avatar: "SG", rating: 5, date: "3 weeks ago", comment: "This is my 3rd bag from this brand. Quality never disappoints. Highly recommend!", verified: true },
-  ],
-  3: [
-    { id: 1, name: "Rahul Verma", avatar: "RV", rating: 5, date: "1 day ago", comment: "Camera is insane! The night mode photos look professional. Battery easily lasts full day.", verified: true },
-    { id: 2, name: "Aditya Kumar", avatar: "AK", rating: 4, date: "4 days ago", comment: "Very smooth performance, no lag at all. 5G speeds are incredible. Display is gorgeous.", verified: true },
-    { id: 3, name: "Sanjay Nair", avatar: "SN", rating: 5, date: "1 week ago", comment: "Best smartphone I've used. The fast charging is a lifesaver - 0 to 100 in under an hour.", verified: true },
-    { id: 4, name: "Vivek Sharma", avatar: "VS", rating: 4, date: "2 weeks ago", comment: "Great phone overall. Just wish it had expandable storage. Camera quality is top-tier.", verified: false },
-  ],
-  4: [
-    { id: 1, name: "Priyanka Das", avatar: "PD", rating: 5, date: "3 days ago", comment: "So lightweight I forget I'm wearing them! Polarization is excellent - perfect for driving.", verified: true },
-    { id: 2, name: "Rohit Malhotra", avatar: "RM", rating: 5, date: "1 week ago", comment: "Stylish and functional. The UV protection is real - my eyes don't strain anymore in sunlight.", verified: true },
-    { id: 3, name: "Anjali Iyer", avatar: "AI", rating: 4, date: "2 weeks ago", comment: "Beautiful design but a bit pricey. However, the quality justifies the cost.", verified: true },
-    { id: 4, name: "Deepak Rao", avatar: "DR", rating: 5, date: "1 month ago", comment: "Got these for my beach vacation. Crystal clear vision even in bright sun. Love them!", verified: false },
-  ],
-  5: [
-    { id: 1, name: "Vikram Choudhary", avatar: "VC", rating: 5, date: "2 days ago", comment: "Most comfortable running shoes I've owned. Ran my first marathon in these - no blisters!", verified: true },
-    { id: 2, name: "Suresh Menon", avatar: "SM", rating: 5, date: "5 days ago", comment: "The cushioning is amazing. My knee pain reduced significantly after switching to these.", verified: true },
-    { id: 3, name: "Rajesh Kumar", avatar: "RK", rating: 4, date: "2 weeks ago", comment: "Great for gym and running. Breathable material keeps feet cool. True to size.", verified: true },
-    { id: 4, name: "Amit Dubey", avatar: "AD", rating: 5, date: "3 weeks ago", comment: "Lightweight and durable. Been using daily for 6 months and still looks new.", verified: true },
-  ],
-  6: [
-    { id: 1, name: "Manoj Pillai", avatar: "MP", rating: 5, date: "1 day ago", comment: "As a music producer, these are perfect for mixing. Flat response is exactly what I needed.", verified: true },
-    { id: 2, name: "Kavitha Rajan", avatar: "KR", rating: 5, date: "4 days ago", comment: "Incredible detail in the sound. Can hear instruments I never noticed before in my favorite songs.", verified: true },
-    { id: 3, name: "Nikhil George", avatar: "NG", rating: 5, date: "1 week ago", comment: "Worth the investment for any serious audiophile. The build quality is tank-like.", verified: true },
-    { id: 4, name: "Ashwin Nair", avatar: "AN", rating: 4, date: "2 weeks ago", comment: "Outstanding clarity but needs a good amp to drive properly. Once set up, sounds heavenly.", verified: false },
-  ],
+// Image mapping for database products
+const categoryImages: Record<string, string> = {
+  "Audio": productHeadphones,
+  "Accessories": productBag,
+  "Electronics": productPhone,
+  "Eyewear": productSunglasses,
+  "Footwear": productSneakers,
+  "Clothing": productBag,
 };
+
+// Static reviews for display
+const defaultReviews = [
+  { id: 1, name: "Arjun Mehta", avatar: "AM", rating: 5, date: "1 day ago", comment: "Amazing quality! Exceeded my expectations.", verified: true },
+  { id: 2, name: "Neha Sharma", avatar: "NS", rating: 5, date: "3 days ago", comment: "Perfect product. Will definitely buy again.", verified: true },
+  { id: 3, name: "Karan Singh", avatar: "KS", rating: 4, date: "1 week ago", comment: "Good value for money. Recommended!", verified: true },
+  { id: 4, name: "Pooja Reddy", avatar: "PR", rating: 5, date: "2 weeks ago", comment: "Worth every rupee! Premium quality.", verified: false },
+];
+
+interface ProductReview {
+  id: string;
+  reviewer_name: string;
+  rating: number;
+  comment: string;
+  is_verified: boolean;
+  created_at: string;
+}
+
+interface Product {
+  id: string;
+  images: string[];
+  name: string;
+  price: number;
+  category: string;
+  rating: number;
+  reviews: number;
+  description: string;
+  features: string[];
+  specifications: Record<string, string>;
+  sizes?: string[];
+}
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -212,6 +138,10 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [loading, setLoading] = useState(true);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   // Scroll to top when component mounts or id changes
@@ -219,29 +149,108 @@ const ProductDetail = () => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [id]);
 
-  const product = products.find(p => p.id === Number(id));
+  // Fetch product data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      
+      // Check if it's a static product
+      if (id?.startsWith('static-')) {
+        const staticProduct = staticProducts.find(p => p.id === id);
+        if (staticProduct) {
+          setProduct(staticProduct as Product);
+        }
+        setLoading(false);
+        return;
+      }
 
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="pt-24 container mx-auto px-4 text-center">
-          <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <Button onClick={() => navigate("/")}>Go Back Home</Button>
-        </div>
-      </div>
-    );
-  }
+      // Fetch from database (UUID)
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error || !data) {
+          console.error('Error fetching product:', error);
+          setProduct(null);
+        } else {
+          // Format database product
+          const dbProduct: Product = {
+            id: data.id,
+            images: data.images?.length ? data.images : [categoryImages[data.category] || productHeadphones],
+            name: data.name,
+            price: Number(data.price),
+            category: data.category,
+            rating: Number(data.rating) || 4.5,
+            reviews: data.reviews_count || 0,
+            description: data.description || "No description available.",
+            features: data.features || [],
+            specifications: (data.specifications as Record<string, string>) || {},
+            sizes: data.sizes || undefined,
+          };
+          setProduct(dbProduct);
+
+          // Fetch reviews for this product
+          const { data: reviewsData } = await supabase
+            .from('product_reviews')
+            .select('*')
+            .eq('product_id', id)
+            .order('created_at', { ascending: false });
+
+          if (reviewsData) {
+            setReviews(reviewsData);
+          }
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
 
   const handleAddToCart = () => {
+    if (!product) return;
+    
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      return; // Size selection required
+    }
+    
     for (let i = 0; i < quantity; i++) {
-      addToCart({ id: product.id, image: product.images[0], name: product.name, price: product.price, category: product.category });
+      addToCart({ 
+        id: product.id, 
+        image: product.images[0], 
+        name: product.name, 
+        price: product.price, 
+        category: product.category,
+        size: selectedSize || undefined
+      });
     }
   };
 
   const handleBuyNow = () => {
+    if (!product) return;
+    
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      return;
+    }
+    
     for (let i = 0; i < quantity; i++) {
-      addToCart({ id: product.id, image: product.images[0], name: product.name, price: product.price, category: product.category });
+      addToCart({ 
+        id: product.id, 
+        image: product.images[0], 
+        name: product.name, 
+        price: product.price, 
+        category: product.category,
+        size: selectedSize || undefined
+      });
     }
     navigate("/checkout");
   };
@@ -254,6 +263,63 @@ const ProductDetail = () => {
       />
     ));
   };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 14) return "1 week ago";
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-24 container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="aspect-square bg-secondary rounded-lg animate-pulse"></div>
+            <div className="space-y-4">
+              <div className="h-8 bg-secondary rounded w-3/4 animate-pulse"></div>
+              <div className="h-6 bg-secondary rounded w-1/2 animate-pulse"></div>
+              <div className="h-10 bg-secondary rounded w-1/3 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-24 container mx-auto px-4 text-center">
+          <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+          <p className="text-muted-foreground mb-6">The product you're looking for doesn't exist.</p>
+          <Button onClick={() => navigate("/products")}>Browse Products</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Combine database reviews with default reviews for display
+  const displayReviews = reviews.length > 0 
+    ? reviews.map(r => ({
+        id: r.id,
+        name: r.reviewer_name,
+        avatar: r.reviewer_name.split(' ').map(n => n[0]).join('').toUpperCase(),
+        rating: r.rating,
+        date: formatDate(r.created_at),
+        comment: r.comment,
+        verified: r.is_verified,
+      }))
+    : defaultReviews;
 
   return (
     <div className="min-h-screen bg-background">
@@ -301,7 +367,7 @@ const ProductDetail = () => {
                   onClick={() => reviewsRef.current?.scrollIntoView({ behavior: 'smooth' })}
                   className="text-muted-foreground hover:text-accent transition-colors cursor-pointer"
                 >
-                  ({product.reviews} reviews)
+                  ({product.reviews || displayReviews.length} reviews)
                 </button>
               </div>
 
@@ -314,6 +380,28 @@ const ProductDetail = () => {
               <p className="text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
+
+              {/* Size Selector (for Clothing/Footwear) */}
+              {product.sizes && product.sizes.length > 0 && (
+                <div className="space-y-3">
+                  <span className="font-medium">Select Size:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizes.map((size) => (
+                      <Button
+                        key={size}
+                        variant={selectedSize === size ? "default" : "outline"}
+                        onClick={() => setSelectedSize(size)}
+                        className="min-w-[48px]"
+                      >
+                        {size}
+                      </Button>
+                    ))}
+                  </div>
+                  {product.sizes.length > 0 && !selectedSize && (
+                    <p className="text-sm text-destructive">Please select a size</p>
+                  )}
+                </div>
+              )}
 
               {/* Quantity Selector */}
               <div className="flex items-center gap-4">
@@ -344,6 +432,7 @@ const ProductDetail = () => {
                   size="lg"
                   className="flex-1"
                   onClick={handleAddToCart}
+                  disabled={product.sizes && product.sizes.length > 0 && !selectedSize}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart
@@ -352,6 +441,7 @@ const ProductDetail = () => {
                   size="lg"
                   className="flex-1 bg-accent hover:bg-accent/90"
                   onClick={handleBuyNow}
+                  disabled={product.sizes && product.sizes.length > 0 && !selectedSize}
                 >
                   <Zap className="h-5 w-5 mr-2" />
                   Buy Now
@@ -380,73 +470,77 @@ const ProductDetail = () => {
           </div>
 
           {/* Features & Specifications */}
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {/* Features */}
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Key Features</h2>
-              <ul className="space-y-3">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-accent" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
+          {(product.features.length > 0 || Object.keys(product.specifications).length > 0) && (
+            <div className="grid md:grid-cols-2 gap-8 mb-16">
+              {/* Features */}
+              {product.features.length > 0 && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Key Features</h2>
+                  <ul className="space-y-3">
+                    {product.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <div className="h-2 w-2 rounded-full bg-accent" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
 
-            {/* Specifications */}
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Specifications</h2>
-              <div className="space-y-3">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-2 border-b border-border last:border-0">
-                    <span className="text-muted-foreground">{key}</span>
-                    <span className="font-medium">{value}</span>
+              {/* Specifications */}
+              {Object.keys(product.specifications).length > 0 && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Specifications</h2>
+                  <div className="space-y-3">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between py-2 border-b last:border-0">
+                        <span className="text-muted-foreground">{key}</span>
+                        <span className="font-medium">{value}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </Card>
-          </div>
+                </Card>
+              )}
+            </div>
+          )}
 
           {/* Customer Reviews */}
-          <section ref={reviewsRef}>
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold">Customer Reviews</h2>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  {renderStars(product.rating)}
-                </div>
-                <span className="font-medium">{product.rating} out of 5</span>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {(productReviews[product.id] || productReviews[1]).map((review) => (
+          <div ref={reviewsRef} className="mb-16">
+            <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {displayReviews.map((review) => (
                 <Card key={review.id} className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-full bg-accent/20 flex items-center justify-center font-bold text-accent">
+                    <div className="h-12 w-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
                       {review.avatar}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold">{review.name}</span>
+                        <span className="font-medium">{review.name}</span>
                         {review.verified && (
                           <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">
-                            Verified Purchase
+                            Verified
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="flex">{renderStars(review.rating)}</div>
-                        <span className="text-sm text-muted-foreground">{review.date}</span>
+                        <div className="flex">
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3 w-3 ${i < review.rating ? 'fill-accent text-accent' : 'text-muted-foreground'}`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{review.date}</span>
                       </div>
-                      <p className="text-muted-foreground">{review.comment}</p>
+                      <p className="text-muted-foreground text-sm">{review.comment}</p>
                     </div>
                   </div>
                 </Card>
               ))}
             </div>
-          </section>
+          </div>
         </div>
       </main>
 
