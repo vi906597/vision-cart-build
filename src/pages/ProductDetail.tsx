@@ -214,6 +214,11 @@ const ProductDetail = () => {
   const [isLiked, setIsLiked] = useState(false);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to top when component mounts or id changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [id]);
+
   const product = products.find(p => p.id === Number(id));
 
   if (!product) {
