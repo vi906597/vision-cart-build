@@ -9,7 +9,7 @@ import productBag from "@/assets/product-bag.jpg";
 
 const offers = [
   {
-    id: 3,
+    id: "static-3",
     image: productPhone,
     name: "Modern Smartphone",
     originalPrice: 74999,
@@ -19,7 +19,7 @@ const offers = [
     category: "Electronics",
   },
   {
-    id: 5,
+    id: "static-5",
     image: productSneakers,
     name: "Athletic Sneakers",
     originalPrice: 14999,
@@ -29,7 +29,7 @@ const offers = [
     category: "Footwear",
   },
   {
-    id: 2,
+    id: "static-2",
     image: productBag,
     name: "Luxury Leather Bag",
     originalPrice: 37499,

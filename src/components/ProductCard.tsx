@@ -6,7 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
-  id: number;
+  id: string | number;
   image: string;
   name: string;
   price: number;
@@ -22,12 +22,12 @@ const ProductCard = ({ id, image, name, price, category, rating = 4.5, reviews =
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart({ id, image, name, price, category });
+    addToCart({ id: String(id), image, name, price, category });
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart({ id, image, name, price, category });
+    addToCart({ id: String(id), image, name, price, category });
     navigate("/checkout");
   };
 

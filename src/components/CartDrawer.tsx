@@ -42,7 +42,7 @@ const CartDrawer = () => {
             ) : (
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 bg-secondary rounded-lg">
+                  <div key={`${item.id}-${item.size || ''}`} className="flex gap-4 p-4 bg-secondary rounded-lg">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -51,6 +51,9 @@ const CartDrawer = () => {
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{item.name}</h4>
                       <p className="text-muted-foreground text-xs">{item.category}</p>
+                      {item.size && (
+                        <p className="text-muted-foreground text-xs">Size: {item.size}</p>
+                      )}
                       <p className="font-bold mt-1">₹{item.price.toLocaleString('en-IN')}</p>
                       
                       <div className="flex items-center gap-2 mt-2">
@@ -58,7 +61,7 @@ const CartDrawer = () => {
                           variant="outline"
                           size="icon"
                           className="h-7 w-7"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, item.size)}
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
@@ -67,7 +70,7 @@ const CartDrawer = () => {
                           variant="outline"
                           size="icon"
                           className="h-7 w-7"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.size)}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -75,7 +78,7 @@ const CartDrawer = () => {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7 ml-auto text-destructive"
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeFromCart(item.id, item.size)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

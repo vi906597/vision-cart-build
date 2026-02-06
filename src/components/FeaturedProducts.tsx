@@ -12,7 +12,7 @@ import productSneakers from "@/assets/product-sneakers.jpg";
 // Default static products as fallback
 const defaultProducts = [
   {
-    id: 1,
+    id: "static-1",
     image: productHeadphones,
     name: "Premium Wireless Headphones",
     price: 24999,
@@ -21,7 +21,7 @@ const defaultProducts = [
     reviews: 245,
   },
   {
-    id: 2,
+    id: "static-2",
     image: productBag,
     name: "Luxury Leather Bag",
     price: 37499,
@@ -30,7 +30,7 @@ const defaultProducts = [
     reviews: 189,
   },
   {
-    id: 3,
+    id: "static-3",
     image: productPhone,
     name: "Modern Smartphone",
     price: 74999,
@@ -39,7 +39,7 @@ const defaultProducts = [
     reviews: 512,
   },
   {
-    id: 4,
+    id: "static-4",
     image: productSunglasses,
     name: "Designer Sunglasses",
     price: 20799,
@@ -48,7 +48,7 @@ const defaultProducts = [
     reviews: 156,
   },
   {
-    id: 5,
+    id: "static-5",
     image: productSneakers,
     name: "Athletic Sneakers",
     price: 14999,
@@ -57,7 +57,7 @@ const defaultProducts = [
     reviews: 423,
   },
   {
-    id: 6,
+    id: "static-6",
     image: productHeadphones,
     name: "Studio Headphones Pro",
     price: 33249,
@@ -78,7 +78,7 @@ const categoryImages: Record<string, string> = {
 };
 
 interface Product {
-  id: number | string;
+  id: string;
   image: string;
   name: string;
   price: number;
@@ -107,10 +107,9 @@ const FeaturedProducts = () => {
           console.error('Error fetching products:', error);
           setProducts(defaultProducts);
         } else if (data && data.length > 0) {
-          const formattedProducts = data.map((p, index) => ({
-            id: index + 100, // Use index-based id for navigation
-            dbId: p.id,
-            image: categoryImages[p.category] || productHeadphones,
+          const formattedProducts: Product[] = data.map((p) => ({
+            id: p.id, // Use actual UUID from database
+            image: p.images?.[0] || categoryImages[p.category] || productHeadphones,
             name: p.name,
             price: Number(p.price),
             category: p.category,
@@ -181,7 +180,7 @@ const FeaturedProducts = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} {...product} id={typeof product.id === 'string' ? parseInt(product.id) || 1 : product.id} />
+              <ProductCard key={product.id} {...product} />
             ))}
           </div>
         )}

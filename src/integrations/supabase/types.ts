@@ -68,6 +68,44 @@ export type Database = {
         }
         Relationships: []
       }
+      product_reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          is_verified: boolean | null
+          product_id: string
+          rating: number
+          reviewer_name: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          product_id: string
+          rating: number
+          reviewer_name: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          product_id?: string
+          rating?: number
+          reviewer_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
@@ -83,6 +121,7 @@ export type Database = {
           price: number
           rating: number | null
           reviews_count: number | null
+          sizes: string[] | null
           specifications: Json | null
           stock: number
           updated_at: string
@@ -101,6 +140,7 @@ export type Database = {
           price: number
           rating?: number | null
           reviews_count?: number | null
+          sizes?: string[] | null
           specifications?: Json | null
           stock?: number
           updated_at?: string
@@ -119,6 +159,7 @@ export type Database = {
           price?: number
           rating?: number | null
           reviews_count?: number | null
+          sizes?: string[] | null
           specifications?: Json | null
           stock?: number
           updated_at?: string
