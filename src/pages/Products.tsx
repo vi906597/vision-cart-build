@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import productHeadphones from "@/assets/product-headphones.jpg";
 import productBag from "@/assets/product-bag.jpg";
 import productPhone from "@/assets/product-phone.jpg";
@@ -16,7 +15,7 @@ import productSneakers from "@/assets/product-sneakers.jpg";
 // Default static products
 const defaultProducts = [
   {
-    id: 1,
+    id: "static-1",
     image: productHeadphones,
     name: "Premium Wireless Headphones",
     price: 24999,
@@ -25,7 +24,7 @@ const defaultProducts = [
     reviews: 245,
   },
   {
-    id: 2,
+    id: "static-2",
     image: productBag,
     name: "Luxury Leather Bag",
     price: 37499,
@@ -34,7 +33,7 @@ const defaultProducts = [
     reviews: 189,
   },
   {
-    id: 3,
+    id: "static-3",
     image: productPhone,
     name: "Modern Smartphone",
     price: 74999,
@@ -43,7 +42,7 @@ const defaultProducts = [
     reviews: 512,
   },
   {
-    id: 4,
+    id: "static-4",
     image: productSunglasses,
     name: "Designer Sunglasses",
     price: 20799,
@@ -52,7 +51,7 @@ const defaultProducts = [
     reviews: 156,
   },
   {
-    id: 5,
+    id: "static-5",
     image: productSneakers,
     name: "Athletic Sneakers",
     price: 14999,
@@ -61,7 +60,7 @@ const defaultProducts = [
     reviews: 423,
   },
   {
-    id: 6,
+    id: "static-6",
     image: productHeadphones,
     name: "Studio Headphones Pro",
     price: 33249,
@@ -70,7 +69,7 @@ const defaultProducts = [
     reviews: 367,
   },
   {
-    id: 7,
+    id: "static-7",
     image: productBag,
     name: "Executive Briefcase",
     price: 45999,
@@ -79,7 +78,7 @@ const defaultProducts = [
     reviews: 128,
   },
   {
-    id: 8,
+    id: "static-8",
     image: productPhone,
     name: "Tablet Pro",
     price: 89999,
@@ -88,7 +87,7 @@ const defaultProducts = [
     reviews: 342,
   },
   {
-    id: 9,
+    id: "static-9",
     image: productSneakers,
     name: "Running Shoes Elite",
     price: 18999,
@@ -97,7 +96,7 @@ const defaultProducts = [
     reviews: 567,
   },
   {
-    id: 10,
+    id: "static-10",
     image: productSunglasses,
     name: "Aviator Classic",
     price: 15999,
@@ -106,7 +105,7 @@ const defaultProducts = [
     reviews: 234,
   },
   {
-    id: 11,
+    id: "static-11",
     image: productHeadphones,
     name: "Gaming Headset",
     price: 12999,
@@ -115,7 +114,7 @@ const defaultProducts = [
     reviews: 445,
   },
   {
-    id: 12,
+    id: "static-12",
     image: productBag,
     name: "Travel Backpack",
     price: 8999,
@@ -135,7 +134,7 @@ const categoryImages: Record<string, string> = {
 };
 
 interface Product {
-  id: number;
+  id: string;
   image: string;
   name: string;
   price: number;
@@ -149,9 +148,8 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>(defaultProducts);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   
-  const categories = ["All", "Audio", "Accessories", "Electronics", "Eyewear", "Footwear"];
+  const categories = ["All", "Audio", "Accessories", "Electronics", "Eyewear", "Footwear", "Clothing"];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -165,15 +163,16 @@ const Products = () => {
           console.error('Error fetching products:', error);
           setProducts(defaultProducts);
         } else if (data && data.length > 0) {
-          const formattedProducts = data.map((p, index) => ({
-            id: index + 100,
-            image: categoryImages[p.category] || productHeadphones,
+          const formattedProducts: Product[] = data.map((p) => ({
+            id: p.id, // Use actual UUID
+            image: p.images?.[0] || categoryImages[p.category] || productHeadphones,
             name: p.name,
             price: Number(p.price),
             category: p.category,
             rating: Number(p.rating) || 4.5,
             reviews: p.reviews_count || 0,
           }));
+          // Database products first, then static products
           setProducts([...formattedProducts, ...defaultProducts]);
         } else {
           setProducts(defaultProducts);
