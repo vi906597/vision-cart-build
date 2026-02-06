@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import productHeadphones from "@/assets/product-headphones.jpg";
 import productBag from "@/assets/product-bag.jpg";
 import productPhone from "@/assets/product-phone.jpg";
 import productSunglasses from "@/assets/product-sunglasses.jpg";
 import productSneakers from "@/assets/product-sneakers.jpg";
 
-const products = [
+// Default static products as fallback
+const defaultProducts = [
   {
     id: 1,
     image: productHeadphones,
@@ -64,14 +67,75 @@ const products = [
   },
 ];
 
+// Image mapping for database products
+const categoryImages: Record<string, string> = {
+  "Audio": productHeadphones,
+  "Accessories": productBag,
+  "Electronics": productPhone,
+  "Eyewear": productSunglasses,
+  "Footwear": productSneakers,
+  "Clothing": productBag,
+};
+
+interface Product {
+  id: number | string;
+  image: string;
+  name: string;
+  price: number;
+  category: string;
+  rating: number;
+  reviews: number;
+}
+
 const FeaturedProducts = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [products, setProducts] = useState<Product[]>(defaultProducts);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   
   const categories = ["All", "Audio", "Accessories", "Electronics", "Eyewear", "Footwear"];
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching products:', error);
+          setProducts(defaultProducts);
+        } else if (data && data.length > 0) {
+          const formattedProducts = data.map((p, index) => ({
+            id: index + 100, // Use index-based id for navigation
+            dbId: p.id,
+            image: categoryImages[p.category] || productHeadphones,
+            name: p.name,
+            price: Number(p.price),
+            category: p.category,
+            rating: Number(p.rating) || 4.5,
+            reviews: p.reviews_count || 0,
+          }));
+          // Combine database products with default products
+          setProducts([...formattedProducts, ...defaultProducts]);
+        } else {
+          setProducts(defaultProducts);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        setProducts(defaultProducts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
   
   const filteredProducts = selectedCategory === "All" 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
+    ? products.slice(0, 6) // Show first 6 products on home
+    : products.filter(product => product.category === selectedCategory).slice(0, 6);
 
   return (
     <section className="py-20 bg-background">
@@ -104,17 +168,33 @@ const FeaturedProducts = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-square bg-secondary rounded-lg mb-4"></div>
+                <div className="h-4 bg-secondary rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-secondary rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} {...product} id={typeof product.id === 'string' ? parseInt(product.id) || 1 : product.id} />
+            ))}
+          </div>
+        )}
 
         {/* View All Button */}
         <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors">
+          <Button 
+            size="lg"
+            onClick={() => navigate('/products')}
+            className="px-8"
+          >
             View All Products
-          </button>
+          </Button>
         </div>
       </div>
     </section>
