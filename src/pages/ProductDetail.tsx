@@ -203,6 +203,18 @@ const ProductDetail = () => {
           if (reviewsData) {
             setReviews(reviewsData);
           }
+
+          // Fetch related products (same category, different id)
+          const { data: relatedData } = await supabase
+            .from('products')
+            .select('*')
+            .eq('category', data.category)
+            .neq('id', id)
+            .limit(4);
+
+          if (relatedData) {
+            setRelatedProducts(relatedData);
+          }
         }
       } catch (err) {
         console.error('Error:', err);
