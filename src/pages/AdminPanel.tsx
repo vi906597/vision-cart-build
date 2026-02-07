@@ -435,6 +435,27 @@ const AdminPanel = () => {
     }
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("Are you sure you want to delete this order?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Order deleted successfully" });
+      fetchOrders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const openAddReviewDialog = (productId?: string) => {
     setReviewForm({
       product_id: productId || "",
