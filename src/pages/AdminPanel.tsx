@@ -1005,70 +1005,82 @@ const AdminPanel = () => {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold">Orders Management</h2>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Order ID</th>
-                      <th className="text-left py-3 px-4">Customer</th>
-                      <th className="text-left py-3 px-4">Location</th>
-                      <th className="text-left py-3 px-4">Total</th>
-                      <th className="text-left py-3 px-4">Payment</th>
-                      <th className="text-left py-3 px-4">Status</th>
-                      <th className="text-right py-3 px-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="py-8 text-center text-muted-foreground">
-                          No orders yet.
-                        </td>
-                      </tr>
-                    ) : (
-                      orders.map((order) => (
-                        <tr key={order.id} className="border-b hover:bg-secondary/50">
-                          <td className="py-3 px-4 font-mono text-sm">{order.order_number}</td>
-                          <td className="py-3 px-4">
-                            <div>
-                              <p className="font-medium">{order.customer_name}</p>
-                              <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm">{order.customer_city}, {order.customer_state}</td>
-                          <td className="py-3 px-4 font-semibold">₹{Number(order.total).toLocaleString('en-IN')}</td>
-                          <td className="py-3 px-4">
+              <div className="space-y-4">
+                {orders.length === 0 ? (
+                  <p className="py-8 text-center text-muted-foreground">No orders yet.</p>
+                ) : (
+                  orders.map((order) => {
+                    const orderItems = Array.isArray(order.items) ? order.items : [];
+                    return (
+                      <Card key={order.id} className="p-5 border">
+                        {/* Order Header */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <p className="font-mono text-sm font-bold">{order.order_number}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}>{order.status}</span>
                             <span className={`px-2 py-1 rounded text-xs ${order.payment_method === 'cod' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                              {order.payment_method === 'cod' ? 'COD' : 'Paid'}
+                              {order.payment_method === 'cod' ? 'COD' : 'Paid Online'}
                             </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Select
-                              value={order.status}
-                              onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Pending">Pending</SelectItem>
-                                <SelectItem value="Processing">Processing</SelectItem>
-                                <SelectItem value="Shipped">Shipped</SelectItem>
-                                <SelectItem value="Delivered">Delivered</SelectItem>
-                                <SelectItem value="Cancelled">Cancelled</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                          </div>
+                        </div>
+
+                        {/* Delivery Label Style - Customer Details */}
+                        <div className="bg-secondary/50 rounded-lg p-4 mb-4 border border-dashed border-border">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Deliver To</p>
+                          <p className="font-bold text-lg">{order.customer_name}</p>
+                          <p className="text-sm">{order.customer_address}</p>
+                          <p className="text-sm">{order.customer_city}, {order.customer_state} - {order.customer_pincode}</p>
+                          <p className="text-sm font-medium mt-1">📞 {order.customer_phone}</p>
+                        </div>
+
+                        {/* Order Items */}
+                        <div className="mb-4">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Items</p>
+                          <div className="space-y-1">
+                            {orderItems.map((item: any, idx: number) => (
+                              <div key={idx} className="flex justify-between text-sm">
+                                <span>
+                                  {item.name} × {item.quantity}
+                                  {item.size && <span className="ml-1 text-xs bg-accent/20 text-accent px-1.5 py-0.5 rounded">Size: {item.size}</span>}
+                                </span>
+                                <span className="font-medium">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex justify-between font-bold mt-2 pt-2 border-t">
+                            <span>Total</span>
+                            <span>₹{Number(order.total).toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-3">
+                          <Select
+                            value={order.status}
+                            onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Pending">Pending</SelectItem>
+                              <SelectItem value="Processing">Processing</SelectItem>
+                              <SelectItem value="Shipped">Shipped</SelectItem>
+                              <SelectItem value="Delivered">Delivered</SelectItem>
+                              <SelectItem value="Cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteOrder(order.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </Card>
+                    );
+                  })
+                )}
               </div>
             </Card>
           </TabsContent>
