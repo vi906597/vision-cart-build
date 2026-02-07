@@ -185,6 +185,7 @@ const Checkout = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
+          size: item.size || null,
         })),
         total: getTotal(),
         status: 'Pending',
