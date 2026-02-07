@@ -481,15 +481,19 @@ const AdminPanel = () => {
     setSavingReview(true);
 
     try {
+      const insertData: any = {
+        product_id: reviewForm.product_id,
+        reviewer_name: reviewForm.reviewer_name,
+        rating: parseInt(reviewForm.rating),
+        comment: reviewForm.comment,
+        is_verified: reviewForm.is_verified,
+      };
+      if (reviewForm.created_at) {
+        insertData.created_at = new Date(reviewForm.created_at).toISOString();
+      }
       const { error } = await supabase
         .from('product_reviews')
-        .insert({
-          product_id: reviewForm.product_id,
-          reviewer_name: reviewForm.reviewer_name,
-          rating: parseInt(reviewForm.rating),
-          comment: reviewForm.comment,
-          is_verified: reviewForm.is_verified,
-        });
+        .insert(insertData);
 
       if (error) throw error;
       
