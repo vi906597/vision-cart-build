@@ -54,8 +54,10 @@ interface Order {
   order_number: string;
   customer_name: string;
   customer_phone: string;
+  customer_address: string;
   customer_city: string;
   customer_state: string;
+  customer_pincode: string;
   items: any;
   total: number;
   status: string;
