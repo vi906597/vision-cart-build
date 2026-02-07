@@ -1153,6 +1153,16 @@ const AdminPanel = () => {
                           rows={3}
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="reviewDate">Review Date (optional - leave blank for now)</Label>
+                        <Input
+                          id="reviewDate"
+                          type="datetime-local"
+                          value={reviewForm.created_at}
+                          onChange={(e) => setReviewForm({ ...reviewForm, created_at: e.target.value })}
+                        />
+                        <p className="text-xs text-muted-foreground">Set a custom date/time for the review. Leave blank for current time.</p>
+                      </div>
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
