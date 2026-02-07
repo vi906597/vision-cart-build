@@ -141,6 +141,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
@@ -201,6 +202,18 @@ const ProductDetail = () => {
 
           if (reviewsData) {
             setReviews(reviewsData);
+          }
+
+          // Fetch related products (same category, different id)
+          const { data: relatedData } = await supabase
+            .from('products')
+            .select('*')
+            .eq('category', data.category)
+            .neq('id', id)
+            .limit(4);
+
+          if (relatedData) {
+            setRelatedProducts(relatedData);
           }
         }
       } catch (err) {
@@ -541,6 +554,41 @@ const ProductDetail = () => {
               ))}
             </div>
           </div>
+
+          {/* Related Products */}
+          {relatedProducts.length > 0 && (
+            <div className="mb-16">
+              <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {relatedProducts.map((rp) => {
+                  const rpImage = rp.images?.[0] || categoryImages[rp.category] || productHeadphones;
+                  return (
+                    <Card
+                      key={rp.id}
+                      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                      onClick={() => navigate(`/product/${rp.id}`)}
+                    >
+                      <img
+                        src={rpImage}
+                        alt={rp.name}
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-3">
+                        <p className="font-medium text-sm line-clamp-1">{rp.name}</p>
+                        <p className="text-accent font-bold mt-1">₹{Number(rp.price).toLocaleString('en-IN')}</p>
+                        {rp.rating && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <Star className="h-3 w-3 fill-accent text-accent" />
+                            <span className="text-xs text-muted-foreground">{rp.rating}</span>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
