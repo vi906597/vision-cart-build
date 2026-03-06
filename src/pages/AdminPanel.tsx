@@ -1231,6 +1231,7 @@ const AdminPanel = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
