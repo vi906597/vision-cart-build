@@ -596,6 +596,140 @@ const AdminPanel = () => {
     }
   };
 
+  const parseCSV = (text: string): string[][] => {
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    return lines.map(line => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') {
+          inQuotes = !inQuotes;
+        } else if (line[i] === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += line[i];
+        }
+      }
+      result.push(current.trim());
+      return result;
+    });
+  };
+
+  const downloadSampleCSV = () => {
+    const sample = `name,price,category,stock,description,sizes,features,images,is_deal,deal_price,deal_discount
+"Classic White T-Shirt",599,Clothing,50,"Premium cotton t-shirt","S,M,L,XL","100% Cotton|Comfortable fit|Machine washable","https://example.com/img1.jpg,https://example.com/img2.jpg",false,,
+"Running Shoes Pro",2999,Footwear,30,"Lightweight running shoes","7,8,9,10,11","Breathable mesh|Anti-slip sole|Cushioned insole",,true,2499,17`;
+    const blob = new Blob([sample], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_products.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCSVUpload = async (file: File) => {
+    setCsvUploading(true);
+    setCsvResults(null);
+
+    try {
+      const text = await file.text();
+      const rows = parseCSV(text);
+      
+      if (rows.length < 2) {
+        throw new Error("CSV file must have a header row and at least one data row");
+      }
+
+      const headers = rows[0].map(h => h.toLowerCase().trim());
+      const nameIdx = headers.indexOf('name');
+      const priceIdx = headers.indexOf('price');
+      const categoryIdx = headers.indexOf('category');
+      const stockIdx = headers.indexOf('stock');
+      const descIdx = headers.indexOf('description');
+      const sizesIdx = headers.indexOf('sizes');
+      const featuresIdx = headers.indexOf('features');
+      const imagesIdx = headers.indexOf('images');
+      const isDealIdx = headers.indexOf('is_deal');
+      const dealPriceIdx = headers.indexOf('deal_price');
+      const dealDiscountIdx = headers.indexOf('deal_discount');
+
+      if (nameIdx === -1 || priceIdx === -1 || categoryIdx === -1 || stockIdx === -1) {
+        throw new Error("CSV must have columns: name, price, category, stock");
+      }
+
+      let success = 0;
+      const errors: string[] = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        try {
+          const name = row[nameIdx]?.trim();
+          const price = parseFloat(row[priceIdx]);
+          const category = row[categoryIdx]?.trim();
+          const stock = parseInt(row[stockIdx]);
+
+          if (!name || isNaN(price) || !category || isNaN(stock)) {
+            errors.push(`Row ${i + 1}: Missing required fields (name, price, category, stock)`);
+            continue;
+          }
+
+          if (name.length > 200) {
+            errors.push(`Row ${i + 1}: Name too long (max 200 chars)`);
+            continue;
+          }
+
+          const validCategories = ["Audio", "Electronics", "Accessories", "Eyewear", "Footwear", "Clothing"];
+          if (!validCategories.includes(category)) {
+            errors.push(`Row ${i + 1}: Invalid category "${category}". Use: ${validCategories.join(', ')}`);
+            continue;
+          }
+
+          const productData: any = {
+            name,
+            price,
+            category,
+            stock,
+            description: descIdx !== -1 ? row[descIdx]?.trim() || null : null,
+            sizes: sizesIdx !== -1 && row[sizesIdx]?.trim() ? row[sizesIdx].split(',').map(s => s.trim()) : null,
+            features: featuresIdx !== -1 && row[featuresIdx]?.trim() ? row[featuresIdx].split('|').map(f => f.trim()) : null,
+            images: imagesIdx !== -1 && row[imagesIdx]?.trim() ? row[imagesIdx].split(',').map(u => u.trim()) : null,
+            is_deal: isDealIdx !== -1 ? row[isDealIdx]?.trim().toLowerCase() === 'true' : false,
+            deal_price: dealPriceIdx !== -1 && row[dealPriceIdx]?.trim() ? parseFloat(row[dealPriceIdx]) : null,
+            deal_discount: dealDiscountIdx !== -1 && row[dealDiscountIdx]?.trim() ? parseInt(row[dealDiscountIdx]) : null,
+          };
+
+          const { error } = await supabase.from('products').insert(productData);
+          if (error) {
+            errors.push(`Row ${i + 1} ("${name}"): ${error.message}`);
+          } else {
+            success++;
+          }
+        } catch (err: any) {
+          errors.push(`Row ${i + 1}: ${err.message}`);
+        }
+      }
+
+      setCsvResults({ success, errors });
+      if (success > 0) fetchProducts();
+      
+      toast({
+        title: `${success} product(s) uploaded`,
+        description: errors.length > 0 ? `${errors.length} row(s) had errors` : "All products uploaded successfully!",
+        variant: errors.length > 0 && success === 0 ? "destructive" : "default",
+      });
+    } catch (error: any) {
+      toast({
+        title: "CSV Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setCsvUploading(false);
+    }
+  };
+
   const toggleSize = (size: string) => {
     setProductForm(prev => ({
       ...prev,
