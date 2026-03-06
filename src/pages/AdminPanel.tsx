@@ -26,7 +26,11 @@ import {
   MessageSquare,
   Image as ImageIcon,
   Upload,
-  Loader2
+  Loader2,
+  FileSpreadsheet,
+  Download,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -120,6 +124,9 @@ const AdminPanel = () => {
   const [savingProduct, setSavingProduct] = useState(false);
   const [savingReview, setSavingReview] = useState(false);
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
+  const [csvDialogOpen, setCsvDialogOpen] = useState(false);
+  const [csvUploading, setCsvUploading] = useState(false);
+  const [csvResults, setCsvResults] = useState<{ success: number; errors: string[] } | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -589,6 +596,140 @@ const AdminPanel = () => {
     }
   };
 
+  const parseCSV = (text: string): string[][] => {
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    return lines.map(line => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') {
+          inQuotes = !inQuotes;
+        } else if (line[i] === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += line[i];
+        }
+      }
+      result.push(current.trim());
+      return result;
+    });
+  };
+
+  const downloadSampleCSV = () => {
+    const sample = `name,price,category,stock,description,sizes,features,images,is_deal,deal_price,deal_discount
+"Classic White T-Shirt",599,Clothing,50,"Premium cotton t-shirt","S,M,L,XL","100% Cotton|Comfortable fit|Machine washable","https://example.com/img1.jpg,https://example.com/img2.jpg",false,,
+"Running Shoes Pro",2999,Footwear,30,"Lightweight running shoes","7,8,9,10,11","Breathable mesh|Anti-slip sole|Cushioned insole",,true,2499,17`;
+    const blob = new Blob([sample], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_products.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCSVUpload = async (file: File) => {
+    setCsvUploading(true);
+    setCsvResults(null);
+
+    try {
+      const text = await file.text();
+      const rows = parseCSV(text);
+      
+      if (rows.length < 2) {
+        throw new Error("CSV file must have a header row and at least one data row");
+      }
+
+      const headers = rows[0].map(h => h.toLowerCase().trim());
+      const nameIdx = headers.indexOf('name');
+      const priceIdx = headers.indexOf('price');
+      const categoryIdx = headers.indexOf('category');
+      const stockIdx = headers.indexOf('stock');
+      const descIdx = headers.indexOf('description');
+      const sizesIdx = headers.indexOf('sizes');
+      const featuresIdx = headers.indexOf('features');
+      const imagesIdx = headers.indexOf('images');
+      const isDealIdx = headers.indexOf('is_deal');
+      const dealPriceIdx = headers.indexOf('deal_price');
+      const dealDiscountIdx = headers.indexOf('deal_discount');
+
+      if (nameIdx === -1 || priceIdx === -1 || categoryIdx === -1 || stockIdx === -1) {
+        throw new Error("CSV must have columns: name, price, category, stock");
+      }
+
+      let success = 0;
+      const errors: string[] = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        try {
+          const name = row[nameIdx]?.trim();
+          const price = parseFloat(row[priceIdx]);
+          const category = row[categoryIdx]?.trim();
+          const stock = parseInt(row[stockIdx]);
+
+          if (!name || isNaN(price) || !category || isNaN(stock)) {
+            errors.push(`Row ${i + 1}: Missing required fields (name, price, category, stock)`);
+            continue;
+          }
+
+          if (name.length > 200) {
+            errors.push(`Row ${i + 1}: Name too long (max 200 chars)`);
+            continue;
+          }
+
+          const validCategories = ["Audio", "Electronics", "Accessories", "Eyewear", "Footwear", "Clothing"];
+          if (!validCategories.includes(category)) {
+            errors.push(`Row ${i + 1}: Invalid category "${category}". Use: ${validCategories.join(', ')}`);
+            continue;
+          }
+
+          const productData: any = {
+            name,
+            price,
+            category,
+            stock,
+            description: descIdx !== -1 ? row[descIdx]?.trim() || null : null,
+            sizes: sizesIdx !== -1 && row[sizesIdx]?.trim() ? row[sizesIdx].split(',').map(s => s.trim()) : null,
+            features: featuresIdx !== -1 && row[featuresIdx]?.trim() ? row[featuresIdx].split('|').map(f => f.trim()) : null,
+            images: imagesIdx !== -1 && row[imagesIdx]?.trim() ? row[imagesIdx].split(',').map(u => u.trim()) : null,
+            is_deal: isDealIdx !== -1 ? row[isDealIdx]?.trim().toLowerCase() === 'true' : false,
+            deal_price: dealPriceIdx !== -1 && row[dealPriceIdx]?.trim() ? parseFloat(row[dealPriceIdx]) : null,
+            deal_discount: dealDiscountIdx !== -1 && row[dealDiscountIdx]?.trim() ? parseInt(row[dealDiscountIdx]) : null,
+          };
+
+          const { error } = await supabase.from('products').insert(productData);
+          if (error) {
+            errors.push(`Row ${i + 1} ("${name}"): ${error.message}`);
+          } else {
+            success++;
+          }
+        } catch (err: any) {
+          errors.push(`Row ${i + 1}: ${err.message}`);
+        }
+      }
+
+      setCsvResults({ success, errors });
+      if (success > 0) fetchProducts();
+      
+      toast({
+        title: `${success} product(s) uploaded`,
+        description: errors.length > 0 ? `${errors.length} row(s) had errors` : "All products uploaded successfully!",
+        variant: errors.length > 0 && success === 0 ? "destructive" : "default",
+      });
+    } catch (error: any) {
+      toast({
+        title: "CSV Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setCsvUploading(false);
+    }
+  };
+
   const toggleSize = (size: string) => {
     setProductForm(prev => ({
       ...prev,
@@ -804,13 +945,101 @@ const AdminPanel = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold">Products Management</h2>
-                <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={openAddProductDialog}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Product
-                    </Button>
-                  </DialogTrigger>
+                <div className="flex gap-2">
+                  {/* CSV Bulk Upload Dialog */}
+                  <Dialog open={csvDialogOpen} onOpenChange={(open) => { setCsvDialogOpen(open); if (!open) setCsvResults(null); }}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Bulk CSV Upload
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Bulk Product Upload (CSV)</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <p className="text-sm text-muted-foreground">
+                          Upload a CSV file to add multiple products at once. Required columns: <strong>name, price, category, stock</strong>.
+                        </p>
+                        <div className="bg-secondary/50 rounded-lg p-3 text-xs space-y-1">
+                          <p className="font-semibold text-sm mb-2">CSV Format Guide:</p>
+                          <p><strong>name</strong> — Product name (required)</p>
+                          <p><strong>price</strong> — Price in ₹ (required)</p>
+                          <p><strong>category</strong> — Audio, Electronics, Accessories, Eyewear, Footwear, Clothing (required)</p>
+                          <p><strong>stock</strong> — Stock quantity (required)</p>
+                          <p><strong>description</strong> — Product description</p>
+                          <p><strong>sizes</strong> — Comma-separated: S,M,L,XL</p>
+                          <p><strong>features</strong> — Pipe-separated: Feature1|Feature2|Feature3</p>
+                          <p><strong>images</strong> — Comma-separated URLs</p>
+                          <p><strong>is_deal</strong> — true/false</p>
+                          <p><strong>deal_price, deal_discount</strong> — Deal pricing</p>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={downloadSampleCSV} className="w-full">
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Sample CSV
+                        </Button>
+                        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                          <label className="cursor-pointer">
+                            <input
+                              type="file"
+                              accept=".csv"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleCSVUpload(file);
+                                e.target.value = '';
+                              }}
+                              disabled={csvUploading}
+                            />
+                            {csvUploading ? (
+                              <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-accent" />
+                                <p className="text-sm text-muted-foreground">Uploading products...</p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center gap-2">
+                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                <p className="text-sm font-medium">Click to select CSV file</p>
+                                <p className="text-xs text-muted-foreground">Only .csv files supported</p>
+                              </div>
+                            )}
+                          </label>
+                        </div>
+                        {csvResults && (
+                          <div className="space-y-2">
+                            {csvResults.success > 0 && (
+                              <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
+                                <CheckCircle className="h-4 w-4" />
+                                <span className="text-sm font-medium">{csvResults.success} product(s) added successfully!</span>
+                              </div>
+                            )}
+                            {csvResults.errors.length > 0 && (
+                              <div className="bg-destructive/10 p-3 rounded-lg space-y-1">
+                                <div className="flex items-center gap-2 text-destructive">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <span className="text-sm font-medium">{csvResults.errors.length} error(s):</span>
+                                </div>
+                                <div className="max-h-32 overflow-y-auto">
+                                  {csvResults.errors.map((err, i) => (
+                                    <p key={i} className="text-xs text-destructive/80">{err}</p>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={openAddProductDialog}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Product
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
@@ -1002,6 +1231,7 @@ const AdminPanel = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
