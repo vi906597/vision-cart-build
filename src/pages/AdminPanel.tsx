@@ -945,13 +945,101 @@ const AdminPanel = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold">Products Management</h2>
-                <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={openAddProductDialog}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Product
-                    </Button>
-                  </DialogTrigger>
+                <div className="flex gap-2">
+                  {/* CSV Bulk Upload Dialog */}
+                  <Dialog open={csvDialogOpen} onOpenChange={(open) => { setCsvDialogOpen(open); if (!open) setCsvResults(null); }}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Bulk CSV Upload
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Bulk Product Upload (CSV)</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <p className="text-sm text-muted-foreground">
+                          Upload a CSV file to add multiple products at once. Required columns: <strong>name, price, category, stock</strong>.
+                        </p>
+                        <div className="bg-secondary/50 rounded-lg p-3 text-xs space-y-1">
+                          <p className="font-semibold text-sm mb-2">CSV Format Guide:</p>
+                          <p><strong>name</strong> — Product name (required)</p>
+                          <p><strong>price</strong> — Price in ₹ (required)</p>
+                          <p><strong>category</strong> — Audio, Electronics, Accessories, Eyewear, Footwear, Clothing (required)</p>
+                          <p><strong>stock</strong> — Stock quantity (required)</p>
+                          <p><strong>description</strong> — Product description</p>
+                          <p><strong>sizes</strong> — Comma-separated: S,M,L,XL</p>
+                          <p><strong>features</strong> — Pipe-separated: Feature1|Feature2|Feature3</p>
+                          <p><strong>images</strong> — Comma-separated URLs</p>
+                          <p><strong>is_deal</strong> — true/false</p>
+                          <p><strong>deal_price, deal_discount</strong> — Deal pricing</p>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={downloadSampleCSV} className="w-full">
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Sample CSV
+                        </Button>
+                        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                          <label className="cursor-pointer">
+                            <input
+                              type="file"
+                              accept=".csv"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleCSVUpload(file);
+                                e.target.value = '';
+                              }}
+                              disabled={csvUploading}
+                            />
+                            {csvUploading ? (
+                              <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-accent" />
+                                <p className="text-sm text-muted-foreground">Uploading products...</p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center gap-2">
+                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                <p className="text-sm font-medium">Click to select CSV file</p>
+                                <p className="text-xs text-muted-foreground">Only .csv files supported</p>
+                              </div>
+                            )}
+                          </label>
+                        </div>
+                        {csvResults && (
+                          <div className="space-y-2">
+                            {csvResults.success > 0 && (
+                              <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
+                                <CheckCircle className="h-4 w-4" />
+                                <span className="text-sm font-medium">{csvResults.success} product(s) added successfully!</span>
+                              </div>
+                            )}
+                            {csvResults.errors.length > 0 && (
+                              <div className="bg-destructive/10 p-3 rounded-lg space-y-1">
+                                <div className="flex items-center gap-2 text-destructive">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <span className="text-sm font-medium">{csvResults.errors.length} error(s):</span>
+                                </div>
+                                <div className="max-h-32 overflow-y-auto">
+                                  {csvResults.errors.map((err, i) => (
+                                    <p key={i} className="text-xs text-destructive/80">{err}</p>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={openAddProductDialog}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Product
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
