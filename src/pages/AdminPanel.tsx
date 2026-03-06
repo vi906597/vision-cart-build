@@ -26,7 +26,11 @@ import {
   MessageSquare,
   Image as ImageIcon,
   Upload,
-  Loader2
+  Loader2,
+  FileSpreadsheet,
+  Download,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -120,6 +124,9 @@ const AdminPanel = () => {
   const [savingProduct, setSavingProduct] = useState(false);
   const [savingReview, setSavingReview] = useState(false);
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
+  const [csvDialogOpen, setCsvDialogOpen] = useState(false);
+  const [csvUploading, setCsvUploading] = useState(false);
+  const [csvResults, setCsvResults] = useState<{ success: number; errors: string[] } | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
