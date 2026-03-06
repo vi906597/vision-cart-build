@@ -24,7 +24,9 @@ import {
   X,
   Star,
   MessageSquare,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Upload,
+  Loader2
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,6 +119,7 @@ const AdminPanel = () => {
   });
   const [savingProduct, setSavingProduct] = useState(false);
   const [savingReview, setSavingReview] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState<number | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -553,6 +556,39 @@ const AdminPanel = () => {
     }
   };
 
+  const handleImageUpload = async (file: File, index: number) => {
+    setUploadingImage(index);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      const newImages = [...productForm.images];
+      newImages[index] = publicUrl;
+      setProductForm({ ...productForm, images: newImages });
+      
+      toast({ title: "Success", description: "Image uploaded successfully" });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(null);
+    }
+  };
+
   const toggleSize = (size: string) => {
     setProductForm(prev => ({
       ...prev,
@@ -863,23 +899,46 @@ const AdminPanel = () => {
                       <div className="space-y-2">
                         <Label className="flex items-center gap-2">
                           <ImageIcon className="h-4 w-4" />
-                          Product Images (URLs)
+                          Product Images (Upload or URL)
                         </Label>
                         <div className="grid grid-cols-2 gap-3">
                           {productForm.images.map((img, index) => (
-                            <Input
-                              key={index}
-                              value={img}
-                              onChange={(e) => {
-                                const newImages = [...productForm.images];
-                                newImages[index] = e.target.value;
-                                setProductForm({ ...productForm, images: newImages });
-                              }}
-                              placeholder={`Image URL ${index + 1}`}
-                            />
+                            <div key={index} className="space-y-2">
+                              <div className="flex gap-2">
+                                <Input
+                                  value={img}
+                                  onChange={(e) => {
+                                    const newImages = [...productForm.images];
+                                    newImages[index] = e.target.value;
+                                    setProductForm({ ...productForm, images: newImages });
+                                  }}
+                                  placeholder={`Image URL ${index + 1}`}
+                                  className="flex-1"
+                                />
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleImageUpload(file, index);
+                                    }}
+                                  />
+                                  <Button type="button" variant="outline" size="icon" asChild disabled={uploadingImage === index}>
+                                    <span>
+                                      {uploadingImage === index ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                    </span>
+                                  </Button>
+                                </label>
+                              </div>
+                              {img && (
+                                <img src={img} alt={`Preview ${index + 1}`} className="h-16 w-16 object-cover rounded border border-border" />
+                              )}
+                            </div>
                           ))}
                         </div>
-                        <p className="text-xs text-muted-foreground">Add up to 4 image URLs. Leave empty to use default category image.</p>
+                        <p className="text-xs text-muted-foreground">Upload images or paste URLs. Up to 4 images supported.</p>
                       </div>
 
                       {/* Features */}
