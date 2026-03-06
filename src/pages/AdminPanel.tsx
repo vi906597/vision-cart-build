@@ -1130,9 +1130,9 @@ const AdminPanel = () => {
                           <ImageIcon className="h-4 w-4" />
                           Product Images (Upload or URL)
                         </Label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-4">
                           {productForm.images.map((img, index) => (
-                            <div key={index} className="space-y-2">
+                            <div key={index} className="space-y-2 border border-border rounded-lg p-3">
                               <div className="flex gap-2">
                                 <Input
                                   value={img}
@@ -1142,7 +1142,7 @@ const AdminPanel = () => {
                                     setProductForm({ ...productForm, images: newImages });
                                   }}
                                   placeholder={`Image URL ${index + 1}`}
-                                  className="flex-1"
+                                  className="flex-1 text-xs"
                                 />
                                 <label className="cursor-pointer">
                                   <input
@@ -1161,8 +1161,28 @@ const AdminPanel = () => {
                                   </Button>
                                 </label>
                               </div>
-                              {img && (
-                                <img src={img} alt={`Preview ${index + 1}`} className="h-16 w-16 object-cover rounded border border-border" />
+                              {img ? (
+                                <div className="relative group">
+                                  <img src={img} alt={`Preview ${index + 1}`} className="w-full h-32 object-cover rounded-md border border-border" />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    className="absolute top-1 right-1 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      const newImages = [...productForm.images];
+                                      newImages[index] = "";
+                                      setProductForm({ ...productForm, images: newImages });
+                                    }}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                  <span className="absolute bottom-1 left-1 bg-background/80 text-[10px] px-1.5 py-0.5 rounded text-foreground">Image {index + 1}</span>
+                                </div>
+                              ) : (
+                                <div className="w-full h-32 bg-secondary/50 rounded-md border border-dashed border-border flex items-center justify-center">
+                                  <span className="text-xs text-muted-foreground">No image {index + 1}</span>
+                                </div>
                               )}
                             </div>
                           ))}
