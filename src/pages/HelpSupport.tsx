@@ -1,9 +1,16 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Mail, Phone, MapPin, Clock, Truck, RotateCcw, CreditCard, ShieldCheck, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Mail, Phone, MapPin, Clock, Truck, RotateCcw, CreditCard, ShieldCheck, MessageCircle, Send, CheckCircle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const faqs = [
   { q: "How can I track my order?", a: "Go to our Track Order page, enter your order number and registered phone number to see real-time status updates." },
@@ -17,6 +24,33 @@ const faqs = [
 ];
 
 const HelpSupport = () => {
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+      toast({ title: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+    setSending(true);
+    const { error } = await supabase.from("contact_messages").insert({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      subject: formData.subject.trim(),
+      message: formData.message.trim(),
+    });
+    setSending(false);
+    if (error) {
+      toast({ title: "Failed to send message", description: "Please try again later.", variant: "destructive" });
+    } else {
+      setSent(true);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -59,9 +93,49 @@ const HelpSupport = () => {
             </CardContent>
           </Card>
 
-          {/* Contact */}
+          {/* Contact Form */}
+          <Card className="mb-10">
+            <CardHeader><CardTitle>Send Us a Message</CardTitle></CardHeader>
+            <CardContent>
+              {sent ? (
+                <div className="text-center py-8">
+                  <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <p className="text-lg font-medium text-foreground mb-1">Message Sent!</p>
+                  <p className="text-sm text-muted-foreground mb-4">We'll get back to you within 24 hours.</p>
+                  <Button variant="outline" onClick={() => setSent(false)}>Send Another Message</Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Name</Label>
+                      <Input id="name" placeholder="Your name" maxLength={100} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" placeholder="your@email.com" maxLength={255} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input id="subject" placeholder="How can we help?" maxLength={200} value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="message">Message</Label>
+                    <Textarea id="message" placeholder="Describe your issue or question..." rows={5} maxLength={1000} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={sending}>
+                    {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                    {sending ? "Sending..." : "Send Message"}
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Contact Info */}
           <Card>
-            <CardHeader><CardTitle>Contact Us</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Other Ways to Reach Us</CardTitle></CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">

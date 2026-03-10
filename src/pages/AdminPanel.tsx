@@ -30,7 +30,8 @@ import {
   FileSpreadsheet,
   Download,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Inbox
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,6 +90,7 @@ const AdminPanel = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [contactMessages, setContactMessages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -220,11 +222,25 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchContactMessages = async () => {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error) setContactMessages(data || []);
+  };
+
+  const deleteContactMessage = async (id: string) => {
+    await supabase.from('contact_messages').delete().eq('id', id);
+    fetchContactMessages();
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchProducts();
       fetchOrders();
       fetchReviews();
+      fetchContactMessages();
     }
   }, [isAdmin]);
 
@@ -917,7 +933,7 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+          <TabsList className="grid grid-cols-6 w-full max-w-3xl">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Products
@@ -929,6 +945,10 @@ const AdminPanel = () => {
             <TabsTrigger value="reviews" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Reviews
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex items-center gap-2">
+              <Inbox className="h-4 w-4" />
+              Messages
             </TabsTrigger>
             <TabsTrigger value="deals" className="flex items-center gap-2">
               <Tag className="h-4 w-4" />
@@ -1621,6 +1641,41 @@ const AdminPanel = () => {
                 </div>
               </div>
             </Card>
+          </TabsContent>
+
+          {/* Messages Tab */}
+          <TabsContent value="messages" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Contact Messages ({contactMessages.length})</h2>
+              <Button variant="outline" size="sm" onClick={fetchContactMessages}>Refresh</Button>
+            </div>
+            {contactMessages.length === 0 ? (
+              <Card className="p-8 text-center text-muted-foreground">
+                <Inbox className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No messages yet</p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {contactMessages.map((msg) => (
+                  <Card key={msg.id} className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-3">
+                          <p className="font-semibold text-sm">{msg.name}</p>
+                          <a href={`mailto:${msg.email}`} className="text-xs text-accent hover:underline">{msg.email}</a>
+                        </div>
+                        <p className="font-medium text-sm">{msg.subject}</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{msg.message}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(msg.created_at).toLocaleString("en-IN")}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteContactMessage(msg.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
