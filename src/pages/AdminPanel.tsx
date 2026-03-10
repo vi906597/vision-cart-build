@@ -30,7 +30,8 @@ import {
   FileSpreadsheet,
   Download,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Inbox
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
