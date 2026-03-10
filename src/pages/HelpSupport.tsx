@@ -24,6 +24,33 @@ const faqs = [
 ];
 
 const HelpSupport = () => {
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+      toast({ title: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+    setSending(true);
+    const { error } = await supabase.from("contact_messages").insert({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      subject: formData.subject.trim(),
+      message: formData.message.trim(),
+    });
+    setSending(false);
+    if (error) {
+      toast({ title: "Failed to send message", description: "Please try again later.", variant: "destructive" });
+    } else {
+      setSent(true);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
