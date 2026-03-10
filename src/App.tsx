@@ -11,6 +11,9 @@ import Checkout from "./pages/Checkout";
 import ProductDetail from "./pages/ProductDetail";
 import Products from "./pages/Products";
 import AdminPanel from "./pages/AdminPanel";
+import TrackOrder from "./pages/TrackOrder";
+import OrderHistory from "./pages/OrderHistory";
+import HelpSupport from "./pages/HelpSupport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,9 @@ const App = () => (
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/products" element={<Products />} />
             <Route path="/secure-admin-92" element={<AdminPanel />} />
+            <Route path="/track-order" element={<TrackOrder />} />
+            <Route path="/order-history" element={<OrderHistory />} />
+            <Route path="/help" element={<HelpSupport />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
