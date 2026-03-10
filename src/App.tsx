@@ -11,6 +11,9 @@ import Checkout from "./pages/Checkout";
 import ProductDetail from "./pages/ProductDetail";
 import Products from "./pages/Products";
 import AdminPanel from "./pages/AdminPanel";
+import TrackOrder from "./pages/TrackOrder";
+import OrderHistory from "./pages/OrderHistory";
+import HelpSupport from "./pages/HelpSupport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
