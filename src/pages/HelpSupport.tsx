@@ -1,9 +1,16 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Mail, Phone, MapPin, Clock, Truck, RotateCcw, CreditCard, ShieldCheck, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Mail, Phone, MapPin, Clock, Truck, RotateCcw, CreditCard, ShieldCheck, MessageCircle, Send, CheckCircle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const faqs = [
   { q: "How can I track my order?", a: "Go to our Track Order page, enter your order number and registered phone number to see real-time status updates." },
