@@ -1642,6 +1642,41 @@ const AdminPanel = () => {
               </div>
             </Card>
           </TabsContent>
+
+          {/* Messages Tab */}
+          <TabsContent value="messages" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Contact Messages ({contactMessages.length})</h2>
+              <Button variant="outline" size="sm" onClick={fetchContactMessages}>Refresh</Button>
+            </div>
+            {contactMessages.length === 0 ? (
+              <Card className="p-8 text-center text-muted-foreground">
+                <Inbox className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No messages yet</p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {contactMessages.map((msg) => (
+                  <Card key={msg.id} className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-3">
+                          <p className="font-semibold text-sm">{msg.name}</p>
+                          <a href={`mailto:${msg.email}`} className="text-xs text-accent hover:underline">{msg.email}</a>
+                        </div>
+                        <p className="font-medium text-sm">{msg.subject}</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{msg.message}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(msg.created_at).toLocaleString("en-IN")}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteContactMessage(msg.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
