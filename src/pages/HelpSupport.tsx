@@ -93,9 +93,49 @@ const HelpSupport = () => {
             </CardContent>
           </Card>
 
-          {/* Contact */}
+          {/* Contact Form */}
+          <Card className="mb-10">
+            <CardHeader><CardTitle>Send Us a Message</CardTitle></CardHeader>
+            <CardContent>
+              {sent ? (
+                <div className="text-center py-8">
+                  <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <p className="text-lg font-medium text-foreground mb-1">Message Sent!</p>
+                  <p className="text-sm text-muted-foreground mb-4">We'll get back to you within 24 hours.</p>
+                  <Button variant="outline" onClick={() => setSent(false)}>Send Another Message</Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Name</Label>
+                      <Input id="name" placeholder="Your name" maxLength={100} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" placeholder="your@email.com" maxLength={255} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input id="subject" placeholder="How can we help?" maxLength={200} value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="message">Message</Label>
+                    <Textarea id="message" placeholder="Describe your issue or question..." rows={5} maxLength={1000} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={sending}>
+                    {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                    {sending ? "Sending..." : "Send Message"}
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Contact Info */}
           <Card>
-            <CardHeader><CardTitle>Contact Us</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Other Ways to Reach Us</CardTitle></CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
