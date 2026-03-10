@@ -222,11 +222,25 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchContactMessages = async () => {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error) setContactMessages(data || []);
+  };
+
+  const deleteContactMessage = async (id: string) => {
+    await supabase.from('contact_messages').delete().eq('id', id);
+    fetchContactMessages();
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchProducts();
       fetchOrders();
       fetchReviews();
+      fetchContactMessages();
     }
   }, [isAdmin]);
 
