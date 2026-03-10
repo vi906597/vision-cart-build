@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can read orders by phone" ON public.orders FOR SELECT TO anon, authenticated USING (true);
