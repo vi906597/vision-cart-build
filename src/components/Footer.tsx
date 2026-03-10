@@ -46,23 +46,23 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Help</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Customer Service
+                <a href="/help" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  Help & Support
                 </a>
               </li>
               <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Shipping Info
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Returns
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <a href="/track-order" className="text-primary-foreground/80 hover:text-accent transition-colors">
                   Track Order
+                </a>
+              </li>
+              <li>
+                <a href="/order-history" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  Order History
+                </a>
+              </li>
+              <li>
+                <a href="/help#returns" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  Returns & Refunds
                 </a>
               </li>
             </ul>
