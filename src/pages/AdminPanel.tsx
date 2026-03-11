@@ -236,6 +236,14 @@ const AdminPanel = () => {
     if (!error) setContactMessages(data || []);
   };
 
+  const markAllMessagesRead = () => {
+    const allIds = new Set(contactMessages.map(m => m.id));
+    setReadMessageIds(allIds);
+    localStorage.setItem('admin_read_messages', JSON.stringify([...allIds]));
+  };
+
+  const unreadMessageCount = contactMessages.filter(m => !readMessageIds.has(m.id)).length;
+
   const deleteContactMessage = async (id: string) => {
     await supabase.from('contact_messages').delete().eq('id', id);
     fetchContactMessages();
