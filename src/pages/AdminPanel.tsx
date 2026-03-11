@@ -974,9 +974,14 @@ const AdminPanel = () => {
               <MessageSquare className="h-4 w-4" />
               Reviews
             </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
+            <TabsTrigger value="messages" className="flex items-center gap-2 relative">
               <Inbox className="h-4 w-4" />
               Messages
+              {unreadMessageCount > 0 && (
+                <span className="ml-1 inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-destructive text-destructive-foreground text-xs font-bold">
+                  {unreadMessageCount}
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger value="deals" className="flex items-center gap-2">
               <Tag className="h-4 w-4" />
