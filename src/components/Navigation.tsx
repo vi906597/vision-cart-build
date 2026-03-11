@@ -48,6 +48,8 @@ const Navigation = () => {
     { label: "Men", href: "/products", icon: Users },
     { label: "Women", href: "/products", icon: Users },
     { label: "Accessories", href: "/products", icon: Gem },
+    { label: "Track Order", href: "/track-order", icon: Truck },
+    { label: "Help", href: "/help-support", icon: HelpCircle },
   ];
 
   return (
