@@ -91,6 +91,12 @@ const AdminPanel = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
+  const [readMessageIds, setReadMessageIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('admin_read_messages');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -230,6 +236,14 @@ const AdminPanel = () => {
     if (!error) setContactMessages(data || []);
   };
 
+  const markAllMessagesRead = () => {
+    const allIds = new Set(contactMessages.map(m => m.id));
+    setReadMessageIds(allIds);
+    localStorage.setItem('admin_read_messages', JSON.stringify([...allIds]));
+  };
+
+  const unreadMessageCount = contactMessages.filter(m => !readMessageIds.has(m.id)).length;
+
   const deleteContactMessage = async (id: string) => {
     await supabase.from('contact_messages').delete().eq('id', id);
     fetchContactMessages();
@@ -241,6 +255,20 @@ const AdminPanel = () => {
       fetchOrders();
       fetchReviews();
       fetchContactMessages();
+
+      // Realtime subscription for new messages
+      const channel = supabase
+        .channel('contact-messages-realtime')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
+          setContactMessages(prev => [payload.new as any, ...prev]);
+          toast({ title: "📩 New Message", description: `${(payload.new as any).name}: ${(payload.new as any).subject}` });
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'contact_messages' }, () => {
+          fetchContactMessages();
+        })
+        .subscribe();
+
+      return () => { supabase.removeChannel(channel); };
     }
   }, [isAdmin]);
 
@@ -946,9 +974,14 @@ const AdminPanel = () => {
               <MessageSquare className="h-4 w-4" />
               Reviews
             </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
+            <TabsTrigger value="messages" className="flex items-center gap-2 relative">
               <Inbox className="h-4 w-4" />
               Messages
+              {unreadMessageCount > 0 && (
+                <span className="ml-1 inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-destructive text-destructive-foreground text-xs font-bold">
+                  {unreadMessageCount}
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger value="deals" className="flex items-center gap-2">
               <Tag className="h-4 w-4" />
@@ -1647,7 +1680,14 @@ const AdminPanel = () => {
           <TabsContent value="messages" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold">Contact Messages ({contactMessages.length})</h2>
-              <Button variant="outline" size="sm" onClick={fetchContactMessages}>Refresh</Button>
+              <div className="flex gap-2">
+                {unreadMessageCount > 0 && (
+                  <Button variant="outline" size="sm" onClick={markAllMessagesRead}>
+                    <CheckCircle className="h-4 w-4 mr-1" /> Mark All Read
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={fetchContactMessages}>Refresh</Button>
+              </div>
             </div>
             {contactMessages.length === 0 ? (
               <Card className="p-8 text-center text-muted-foreground">
@@ -1657,7 +1697,7 @@ const AdminPanel = () => {
             ) : (
               <div className="space-y-3">
                 {contactMessages.map((msg) => (
-                  <Card key={msg.id} className="p-4">
+                  <Card key={msg.id} className={`p-4 ${!readMessageIds.has(msg.id) ? 'border-l-4 border-l-accent bg-accent/5' : ''}`}>
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 flex-1">
                         <div className="flex items-center gap-3">
