@@ -1697,7 +1697,7 @@ const AdminPanel = () => {
             ) : (
               <div className="space-y-3">
                 {contactMessages.map((msg) => (
-                  <Card key={msg.id} className="p-4">
+                  <Card key={msg.id} className={`p-4 ${!readMessageIds.has(msg.id) ? 'border-l-4 border-l-accent bg-accent/5' : ''}`}>
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 flex-1">
                         <div className="flex items-center gap-3">
