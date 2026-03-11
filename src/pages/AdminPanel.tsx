@@ -91,6 +91,12 @@ const AdminPanel = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
+  const [readMessageIds, setReadMessageIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('admin_read_messages');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
