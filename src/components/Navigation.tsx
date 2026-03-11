@@ -1,4 +1,4 @@
-import { Search, Menu, User, LogOut, X, ShoppingBag, Sparkles, Users, Gem } from "lucide-react";
+import { Search, Menu, User, LogOut, X, ShoppingBag, Sparkles, Users, Gem, Truck, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -48,6 +48,8 @@ const Navigation = () => {
     { label: "Men", href: "/products", icon: Users },
     { label: "Women", href: "/products", icon: Users },
     { label: "Accessories", href: "/products", icon: Gem },
+    { label: "Track Order", href: "/track-order", icon: Truck },
+    { label: "Help", href: "/help-support", icon: HelpCircle },
   ];
 
   return (
