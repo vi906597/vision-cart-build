@@ -286,8 +286,8 @@ const AdminPanel = () => {
       fetchOrders();
       fetchReviews();
       fetchContactMessages();
+      fetchContactSettings();
 
-      // Realtime subscription for new messages
       const channel = supabase
         .channel('contact-messages-realtime')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
