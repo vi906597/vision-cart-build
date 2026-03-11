@@ -119,6 +119,17 @@ const Navigation = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-2 mt-6">
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-3 text-base"
+                    onClick={() => {
+                      navigate("/");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Home className="h-5 w-5" />
+                    Home
+                  </Button>
                   {navLinks.map((link) => (
                     <Button
                       key={link.label}
