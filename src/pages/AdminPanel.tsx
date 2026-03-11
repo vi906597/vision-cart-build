@@ -97,6 +97,14 @@ const AdminPanel = () => {
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
+  const [contactSettings, setContactSettings] = useState({
+    contact_email: '',
+    contact_phone: '',
+    contact_whatsapp: '',
+    contact_address: '',
+    working_hours: '',
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
