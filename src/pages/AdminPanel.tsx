@@ -244,6 +244,29 @@ const AdminPanel = () => {
     if (!error) setContactMessages(data || []);
   };
 
+  const fetchContactSettings = async () => {
+    const { data } = await supabase.from('site_settings').select('key, value');
+    if (data) {
+      const mapped: any = {};
+      data.forEach((row: any) => { mapped[row.key] = row.value; });
+      setContactSettings(prev => ({ ...prev, ...mapped }));
+    }
+  };
+
+  const saveContactSettings = async () => {
+    setSavingSettings(true);
+    try {
+      for (const [key, value] of Object.entries(contactSettings)) {
+        await supabase.from('site_settings').update({ value, updated_at: new Date().toISOString() }).eq('key', key);
+      }
+      toast({ title: "Saved", description: "Contact settings updated successfully" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   const markAllMessagesRead = () => {
     const allIds = new Set(contactMessages.map(m => m.id));
     setReadMessageIds(allIds);
