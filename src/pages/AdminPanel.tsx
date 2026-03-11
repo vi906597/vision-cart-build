@@ -1680,7 +1680,14 @@ const AdminPanel = () => {
           <TabsContent value="messages" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold">Contact Messages ({contactMessages.length})</h2>
-              <Button variant="outline" size="sm" onClick={fetchContactMessages}>Refresh</Button>
+              <div className="flex gap-2">
+                {unreadMessageCount > 0 && (
+                  <Button variant="outline" size="sm" onClick={markAllMessagesRead}>
+                    <CheckCircle className="h-4 w-4 mr-1" /> Mark All Read
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={fetchContactMessages}>Refresh</Button>
+              </div>
             </div>
             {contactMessages.length === 0 ? (
               <Card className="p-8 text-center text-muted-foreground">
