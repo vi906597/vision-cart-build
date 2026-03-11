@@ -255,6 +255,20 @@ const AdminPanel = () => {
       fetchOrders();
       fetchReviews();
       fetchContactMessages();
+
+      // Realtime subscription for new messages
+      const channel = supabase
+        .channel('contact-messages-realtime')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
+          setContactMessages(prev => [payload.new as any, ...prev]);
+          toast({ title: "📩 New Message", description: `${(payload.new as any).name}: ${(payload.new as any).subject}` });
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'contact_messages' }, () => {
+          fetchContactMessages();
+        })
+        .subscribe();
+
+      return () => { supabase.removeChannel(channel); };
     }
   }, [isAdmin]);
 
