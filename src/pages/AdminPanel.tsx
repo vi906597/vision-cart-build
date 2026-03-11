@@ -97,6 +97,14 @@ const AdminPanel = () => {
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
+  const [contactSettings, setContactSettings] = useState({
+    contact_email: '',
+    contact_phone: '',
+    contact_whatsapp: '',
+    contact_address: '',
+    working_hours: '',
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -236,6 +244,29 @@ const AdminPanel = () => {
     if (!error) setContactMessages(data || []);
   };
 
+  const fetchContactSettings = async () => {
+    const { data } = await supabase.from('site_settings').select('key, value');
+    if (data) {
+      const mapped: any = {};
+      data.forEach((row: any) => { mapped[row.key] = row.value; });
+      setContactSettings(prev => ({ ...prev, ...mapped }));
+    }
+  };
+
+  const saveContactSettings = async () => {
+    setSavingSettings(true);
+    try {
+      for (const [key, value] of Object.entries(contactSettings)) {
+        await supabase.from('site_settings').update({ value, updated_at: new Date().toISOString() }).eq('key', key);
+      }
+      toast({ title: "Saved", description: "Contact settings updated successfully" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   const markAllMessagesRead = () => {
     const allIds = new Set(contactMessages.map(m => m.id));
     setReadMessageIds(allIds);
@@ -255,8 +286,8 @@ const AdminPanel = () => {
       fetchOrders();
       fetchReviews();
       fetchContactMessages();
+      fetchContactSettings();
 
-      // Realtime subscription for new messages
       const channel = supabase
         .channel('contact-messages-realtime')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, (payload) => {
@@ -1658,20 +1689,53 @@ const AdminPanel = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-6">
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-6">Settings</h2>
-              <div className="space-y-4">
-                <div className="p-4 bg-secondary/50 rounded-lg">
-                  <h3 className="font-medium mb-2">Admin Account</h3>
-                  <p className="text-sm text-muted-foreground">Email: {user.email}</p>
+              <h2 className="text-xl font-semibold mb-6">Admin Account</h2>
+              <div className="p-4 bg-secondary/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Email: {user.email}</p>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Contact Information</h2>
+                <Button onClick={saveContactSettings} disabled={savingSettings} size="sm">
+                  {savingSettings ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  {savingSettings ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">These details will appear on the Help & Support page.</p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="s_email">Support Email</Label>
+                  <Input id="s_email" value={contactSettings.contact_email} maxLength={255} onChange={(e) => setContactSettings({ ...contactSettings, contact_email: e.target.value })} />
                 </div>
-                <div className="p-4 bg-secondary/50 rounded-lg">
-                  <h3 className="font-medium mb-2">Store Information</h3>
-                  <p className="text-sm text-muted-foreground">Store Name: ZenViero</p>
-                  <p className="text-sm text-muted-foreground">Products: {stats.totalProducts}</p>
-                  <p className="text-sm text-muted-foreground">Orders: {stats.totalOrders}</p>
+                <div>
+                  <Label htmlFor="s_phone">Phone Number</Label>
+                  <Input id="s_phone" value={contactSettings.contact_phone} maxLength={20} placeholder="+91 98765 43210" onChange={(e) => setContactSettings({ ...contactSettings, contact_phone: e.target.value })} />
                 </div>
+                <div>
+                  <Label htmlFor="s_whatsapp">WhatsApp Number (without +)</Label>
+                  <Input id="s_whatsapp" value={contactSettings.contact_whatsapp} maxLength={15} placeholder="919876543210" onChange={(e) => setContactSettings({ ...contactSettings, contact_whatsapp: e.target.value })} />
+                </div>
+                <div>
+                  <Label htmlFor="s_hours">Working Hours</Label>
+                  <Input id="s_hours" value={contactSettings.working_hours} maxLength={100} onChange={(e) => setContactSettings({ ...contactSettings, working_hours: e.target.value })} />
+                </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="s_address">Address</Label>
+                  <Input id="s_address" value={contactSettings.contact_address} maxLength={300} onChange={(e) => setContactSettings({ ...contactSettings, contact_address: e.target.value })} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Store Information</h2>
+              <div className="p-4 bg-secondary/50 rounded-lg space-y-1">
+                <p className="text-sm text-muted-foreground">Store Name: ZenViero</p>
+                <p className="text-sm text-muted-foreground">Products: {stats.totalProducts}</p>
+                <p className="text-sm text-muted-foreground">Orders: {stats.totalOrders}</p>
               </div>
             </Card>
           </TabsContent>

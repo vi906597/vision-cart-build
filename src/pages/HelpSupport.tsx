@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +27,26 @@ const HelpSupport = () => {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [contactInfo, setContactInfo] = useState({
+    contact_email: "support@zenviero.com",
+    contact_phone: "+91 98765 43210",
+    contact_whatsapp: "919876543210",
+    contact_address: "ZenViero, Mumbai, Maharashtra, India",
+    working_hours: "Mon - Sat: 10 AM - 7 PM",
+  });
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data } = await supabase.from("site_settings").select("key, value");
+      if (data) {
+        const mapped: Record<string, string> = {};
+        data.forEach((row: any) => { mapped[row.key] = row.value; });
+        setContactInfo(prev => ({ ...prev, ...mapped }));
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +69,8 @@ const HelpSupport = () => {
       setFormData({ name: "", email: "", subject: "", message: "" });
     }
   };
+
+  const phoneForTel = contactInfo.contact_phone.replace(/\s/g, '');
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,21 +164,21 @@ const HelpSupport = () => {
                     <div className="p-2 rounded-full bg-accent/10"><Mail className="h-5 w-5 text-accent" /></div>
                     <div>
                       <p className="text-sm font-medium">Email</p>
-                      <a href="mailto:support@zenviero.com" className="text-sm text-muted-foreground hover:text-accent">support@zenviero.com</a>
+                      <a href={`mailto:${encodeURIComponent(contactInfo.contact_email)}`} className="text-sm text-muted-foreground hover:text-accent">{contactInfo.contact_email}</a>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-accent/10"><Phone className="h-5 w-5 text-accent" /></div>
                     <div>
                       <p className="text-sm font-medium">Phone</p>
-                      <a href="tel:+919876543210" className="text-sm text-muted-foreground hover:text-accent">+91 98765 43210</a>
+                      <a href={`tel:${phoneForTel}`} className="text-sm text-muted-foreground hover:text-accent">{contactInfo.contact_phone}</a>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-accent/10"><MessageCircle className="h-5 w-5 text-accent" /></div>
                     <div>
                       <p className="text-sm font-medium">WhatsApp</p>
-                      <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-accent">Chat with us</a>
+                      <a href={`https://wa.me/${encodeURIComponent(contactInfo.contact_whatsapp)}`} target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-accent">Chat with us</a>
                     </div>
                   </div>
                 </div>
@@ -166,14 +187,14 @@ const HelpSupport = () => {
                     <div className="p-2 rounded-full bg-accent/10"><Clock className="h-5 w-5 text-accent" /></div>
                     <div>
                       <p className="text-sm font-medium">Working Hours</p>
-                      <p className="text-sm text-muted-foreground">Mon - Sat: 10 AM - 7 PM</p>
+                      <p className="text-sm text-muted-foreground">{contactInfo.working_hours}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-full bg-accent/10"><MapPin className="h-5 w-5 text-accent" /></div>
                     <div>
                       <p className="text-sm font-medium">Address</p>
-                      <p className="text-sm text-muted-foreground">ZenViero, Mumbai, Maharashtra, India</p>
+                      <p className="text-sm text-muted-foreground">{contactInfo.contact_address}</p>
                     </div>
                   </div>
                 </div>
