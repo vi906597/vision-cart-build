@@ -46,7 +46,7 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Help</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="/help" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <a href="/help-support" className="text-primary-foreground/80 hover:text-accent transition-colors">
                   Help & Support
                 </a>
               </li>
@@ -61,7 +61,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="/help#returns" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                <a href="/help-support#returns" className="text-primary-foreground/80 hover:text-accent transition-colors">
                   Returns & Refunds
                 </a>
               </li>
