@@ -464,19 +464,19 @@ const ProductDetail = () => {
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t">
                 <div className="flex flex-col items-center text-center">
-                  <Truck className="h-6 w-6 text-accent mb-2" />
-                  <span className="text-sm font-medium">Free Delivery</span>
-                  <span className="text-xs text-muted-foreground">Orders above ₹500</span>
+                  <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-accent mb-1 sm:mb-2" />
+                  <span className="text-xs sm:text-sm font-medium">Free Delivery</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Orders above ₹500</span>
                 </div>
                 <div className="flex flex-col items-center text-center">
-                  <Shield className="h-6 w-6 text-accent mb-2" />
-                  <span className="text-sm font-medium">Secure Payment</span>
-                  <span className="text-xs text-muted-foreground">100% Protected</span>
+                  <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-accent mb-1 sm:mb-2" />
+                  <span className="text-xs sm:text-sm font-medium">Secure Payment</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">100% Protected</span>
                 </div>
                 <div className="flex flex-col items-center text-center">
-                  <RotateCcw className="h-6 w-6 text-accent mb-2" />
-                  <span className="text-sm font-medium">Easy Returns</span>
-                  <span className="text-xs text-muted-foreground">30-day policy</span>
+                  <RotateCcw className="h-5 w-5 sm:h-6 sm:w-6 text-accent mb-1 sm:mb-2" />
+                  <span className="text-xs sm:text-sm font-medium">Easy Returns</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">30-day policy</span>
                 </div>
               </div>
             </div>

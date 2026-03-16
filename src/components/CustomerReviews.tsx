@@ -131,21 +131,21 @@ const CustomerReviews = () => {
               <Quote className="h-8 w-8 text-accent/20 mb-4" />
 
               {/* Review Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-2">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12 bg-accent/10">
-                    <AvatarFallback className="text-accent font-semibold">
+                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12 bg-accent/10">
+                    <AvatarFallback className="text-accent font-semibold text-sm">
                       {review.image}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-semibold">{review.name}</h4>
+                      <h4 className="font-semibold text-sm sm:text-base">{review.name}</h4>
                       {review.verified && (
                         <Verified className="h-4 w-4 text-accent fill-accent" />
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {review.date}
                     </p>
                   </div>

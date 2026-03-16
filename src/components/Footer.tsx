@@ -69,7 +69,7 @@ const Footer = () => {
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="font-semibold mb-4">Stay Connected</h4>
             <p className="text-primary-foreground/80 text-sm mb-4">
               Subscribe to our newsletter for exclusive offers
