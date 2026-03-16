@@ -87,14 +87,14 @@ const OrderHistory = () => {
                 return (
                   <Card key={order.id} className="overflow-hidden">
                     <button className="w-full text-left" onClick={() => setExpandedOrder(isExpanded ? null : order.id)}>
-                      <CardHeader className="flex flex-row items-center justify-between py-4">
+                      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-2">
                         <div>
                           <CardTitle className="text-base">#{order.order_number}</CardTitle>
                           <p className="text-xs text-muted-foreground mt-1">{new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Badge className={`${getStatusColor(order.status)} text-primary-foreground`}>{order.status}</Badge>
-                          <span className="font-semibold">{formatPrice(order.total)}</span>
+                        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                          <Badge className={`${getStatusColor(order.status)} text-primary-foreground text-xs`}>{order.status}</Badge>
+                          <span className="font-semibold text-sm">{formatPrice(order.total)}</span>
                           {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                         </div>
                       </CardHeader>

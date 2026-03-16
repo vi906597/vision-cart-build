@@ -113,15 +113,15 @@ const TrackOrder = () => {
                   {order.status === "Cancelled" ? (
                     <p className="text-destructive font-medium">This order has been cancelled.</p>
                   ) : (
-                    <div className="flex items-center justify-between relative">
+                    <div className="flex items-center justify-between relative overflow-x-auto pb-2">
                       <div className="absolute top-5 left-0 right-0 h-0.5 bg-border" />
                       <div className="absolute top-5 left-0 h-0.5 bg-accent transition-all" style={{ width: `${Math.max(0, currentStepIndex / (statusSteps.length - 1)) * 100}%` }} />
                       {statusSteps.map((step, i) => (
-                        <div key={step} className="flex flex-col items-center relative z-10">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${i <= currentStepIndex ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
+                        <div key={step} className="flex flex-col items-center relative z-10 min-w-[56px] sm:min-w-[70px]">
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${i <= currentStepIndex ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
                             {getStatusIcon(step)}
                           </div>
-                          <span className={`text-xs mt-2 text-center max-w-[70px] ${i <= currentStepIndex ? "text-foreground font-medium" : "text-muted-foreground"}`}>{step}</span>
+                          <span className={`text-[10px] sm:text-xs mt-2 text-center max-w-[56px] sm:max-w-[70px] leading-tight ${i <= currentStepIndex ? "text-foreground font-medium" : "text-muted-foreground"}`}>{step}</span>
                         </div>
                       ))}
                     </div>

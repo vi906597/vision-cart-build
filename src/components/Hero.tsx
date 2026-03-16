@@ -21,7 +21,7 @@ const Hero = () => {
           <div className="inline-block mb-4 px-4 py-1.5 bg-accent/20 backdrop-blur-sm rounded-full">
             <span className="text-sm font-medium text-accent-foreground">New Collection 2024</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-primary-foreground leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 text-primary-foreground leading-tight">
             Timeless
             <br />
             Elegance

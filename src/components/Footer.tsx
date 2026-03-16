@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           {/* Brand */}
           <div>
             <img src={logo} alt="ZenViero" className="h-10 mb-4 brightness-0 invert" />
@@ -69,7 +69,7 @@ const Footer = () => {
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="font-semibold mb-4">Stay Connected</h4>
             <p className="text-primary-foreground/80 text-sm mb-4">
               Subscribe to our newsletter for exclusive offers

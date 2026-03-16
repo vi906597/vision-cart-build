@@ -46,15 +46,15 @@ const Categories = () => {
             return (
               <button
                 key={category.name}
-                className="group p-8 bg-card rounded-2xl border border-border hover:border-accent hover:shadow-lg transition-all duration-300"
+                className="group p-5 sm:p-8 bg-card rounded-2xl border border-border hover:border-accent hover:shadow-lg transition-all duration-300"
               >
-                <div className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className="h-8 w-8" />
+                <div className={`w-12 h-12 sm:w-16 sm:h-16 ${category.color} rounded-2xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="h-6 w-6 sm:h-8 sm:w-8" />
                 </div>
-                <h3 className="font-semibold text-lg mb-1 group-hover:text-accent transition-colors">
+                <h3 className="font-semibold text-base sm:text-lg mb-1 group-hover:text-accent transition-colors">
                   {category.name}
                 </h3>
-                <p className="text-sm text-muted-foreground">{category.count}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{category.count}</p>
               </button>
             );
           })}

@@ -107,19 +107,21 @@ const ProductCard = ({ id, image, name, price, category, rating = 4.5, reviews =
           <Button 
             variant="outline" 
             size="sm" 
-            className="flex-1"
+            className="flex-1 text-xs sm:text-sm"
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="h-4 w-4 mr-1" />
-            Add to Cart
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+            <span className="hidden sm:inline">Add to Cart</span>
+            <span className="sm:hidden">Cart</span>
           </Button>
           <Button 
             size="sm" 
-            className="flex-1 bg-accent hover:bg-accent/90"
+            className="flex-1 bg-accent hover:bg-accent/90 text-xs sm:text-sm"
             onClick={handleBuyNow}
           >
-            <Zap className="h-4 w-4 mr-1" />
-            Buy Now
+            <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+            <span className="hidden sm:inline">Buy Now</span>
+            <span className="sm:hidden">Buy</span>
           </Button>
         </div>
       </div>
