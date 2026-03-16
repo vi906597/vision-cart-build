@@ -462,7 +462,7 @@ const ProductDetail = () => {
               </div>
 
               {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t">
                 <div className="flex flex-col items-center text-center">
                   <Truck className="h-6 w-6 text-accent mb-2" />
                   <span className="text-sm font-medium">Free Delivery</span>
