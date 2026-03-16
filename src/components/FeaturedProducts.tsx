@@ -153,7 +153,7 @@ const FeaturedProducts = () => {
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
           {categories.map((category) => (
             <Button
               key={category}
